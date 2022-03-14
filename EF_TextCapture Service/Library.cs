@@ -11,9 +11,9 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.Sql;
 using System.Configuration;
+using EF_TextCapture_Service;
 
-
-namespace Verint_Chat_API_Capture
+namespace EF_TextCapture_Service
 {
 
     public static class Library
@@ -25,7 +25,7 @@ namespace Verint_Chat_API_Capture
             StreamWriter loggerman = null;
             try {
                // loggerman = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "\\Log.txt", true);
-                loggerman = new StreamWriter(@"C:\Text Capture\Log.txt", true);
+                loggerman = new StreamWriter(@"C:\EF\Text Capture\Log.txt", true);
                 loggerman.WriteLine(DateTime.Now.ToString() + ":" + e.Source.ToString().Trim() + ";" + e.Message.ToString().Trim());
                 loggerman.Flush();
                 loggerman.Close();
@@ -38,7 +38,7 @@ namespace Verint_Chat_API_Capture
         {
             StreamWriter custommessage = null;
             //custommessage = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "\\CustomLog.txt", true);
-            custommessage = new StreamWriter(@"C:\Text Capture\CustomLog.txt", true);
+            custommessage = new StreamWriter(@"C:\EF\Text Capture\CustomLog.txt", true);
             custommessage.WriteLine(DateTime.Now.ToString() + ":" + messageex);
             custommessage.Flush();
             custommessage.Close();

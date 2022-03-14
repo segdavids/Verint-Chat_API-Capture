@@ -30,7 +30,8 @@ namespace Verint_Chat_API_Capture
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            this.ServiceName = "Service1";
+
+            this.ServiceName = "EF HC Text Capture Service";
         }
 
         #endregion

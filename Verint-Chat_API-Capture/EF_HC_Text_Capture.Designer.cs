@@ -34,19 +34,16 @@ namespace Verint_Chat_API_Capture
             // 
             // serviceProcessInstaller1
             // 
+            this.serviceProcessInstaller1.Account = System.ServiceProcess.ServiceAccount.LocalSystem;
             this.serviceProcessInstaller1.Password = null;
             this.serviceProcessInstaller1.Username = null;
+            this.serviceProcessInstaller1.AfterInstall += new System.Configuration.Install.InstallEventHandler(this.serviceProcessInstaller1_AfterInstall);
             // 
             // EF_Verint_Service
             // 
+            this.EF_Verint_Service.Description = "ExpertFlow Hybrid Chat API Capture";
+            this.EF_Verint_Service.DisplayName = "EF_TextCapture";
             this.EF_Verint_Service.ServiceName = "EfHC-VerintWFM Text Capture";
-            this.EF_Verint_Service.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
-            // 
-            // EF_HC_Text_Capture
-            // 
-            this.Installers.AddRange(new System.Configuration.Install.Installer[] {
-            this.serviceProcessInstaller1,
-            this.EF_Verint_Service});
 
         }
 

@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.31019.35
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Verint-Chat_API-Capture", "Verint-Chat_API-Capture\Verint-Chat_API-Capture.csproj", "{CEFACE22-F900-4944-BB8F-D6721B419343}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EF_TextCapture Service", "EF_TextCapture Service\EF_TextCapture Service.csproj", "{1FE48A4F-C761-4731-9289-DDE185AB30AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{CEFACE22-F900-4944-BB8F-D6721B419343}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CEFACE22-F900-4944-BB8F-D6721B419343}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CEFACE22-F900-4944-BB8F-D6721B419343}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FE48A4F-C761-4731-9289-DDE185AB30AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FE48A4F-C761-4731-9289-DDE185AB30AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FE48A4F-C761-4731-9289-DDE185AB30AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FE48A4F-C761-4731-9289-DDE185AB30AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
