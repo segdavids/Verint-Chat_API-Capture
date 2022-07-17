@@ -68,9 +68,7 @@ namespace EF_TextCapture_Service
                     // conn.Open();
                     while (da.Read())
                     {
-                        List<string> To = new List<string>();
-                        List<string> forempty = new List<string>();
-                        string receiver;
+                        
                         cmd.CommandType = CommandType.Text;
                         hcurl = da["hc_url"].ToString().Trim();
                         string getconvourl = hcurl + urlpart;
@@ -120,7 +118,9 @@ namespace EF_TextCapture_Service
                                         List<LLA_Model.Actor> ActorList = new List<LLA_Model.Actor>();
                                         //CREAT LIST OF ACTOR UTTERANCES
                                         List<LLA_Model.Utterance> UtteranceList = new List<LLA_Model.Utterance>();
-
+                                        List<string> To = new List<string>();
+                                        List<string> forempty = new List<string>();
+                                        string receiver;
 
                                         //CREATE NEW ATTRIBUTE SUBCALSS INSTANCE
                                         LLA_Model.Attributes attributeinst = new LLA_Model.Attributes();
@@ -160,6 +160,9 @@ namespace EF_TextCapture_Service
                                                         finalrole = "visitor";
                                                         break;
                                                     case "agent":
+                                                        finalrole = "agent";
+                                                        break; 
+                                                    case "supervisor":
                                                         finalrole = "agent";
                                                         break;
                                                     default:
@@ -203,10 +206,23 @@ namespace EF_TextCapture_Service
                                                 forempty = ActorList.Where(f => f.role.ToLower() == "agent").Select(n => n.id).ToList();
 
                                             }
+                                            //else
+                                            //{
+                                            //    receiver = ChatItem.to[0].id.ToLower().ToString();
+                                            //    To.Add(receiver);
+                                            //}
                                             else
                                             {
+
                                                 receiver = ChatItem.to[0].id.ToLower().ToString();
-                                                To.Add(receiver);
+                                            //    To.Add(receiver);
+                                                bool containsItem2 = To.Any(item => item.ToString() == receiver.ToString());
+
+                                                if (containsItem2 == false)
+                                                {
+                                                    To.Add(receiver);
+                                                }
+
                                             }
                                             utteranceinst.language = "en-us";
                                             utteranceinst.actor = ChatItem.from.id.ToLower().ToLower();
@@ -260,16 +276,21 @@ namespace EF_TextCapture_Service
                                         }
                                         else
                                         {
-                                            LLA_Model.error errormodel = new LLA_Model.error();
-                                            string errormessaga = errormodel.api_error.message;
-                                            string errormessagatrimmedx = errormessaga.Replace("'", "");
-                                            string errormessagatrimmed = errormessagatrimmedx.Replace("com.verint.textcapture.model.exception.", "Verint Text Capture Model Exception:");
-                                            string errorquery = "insert into Report_Stat (ConversationId,ChatStartTime,ChatEndTime,ThreadId,status,Error_message,Date_reported) values('" + ObjClass.id + "','" + ObjClass.startTime + "','" + ObjClass.endTime + "','" + ObjClass.threadId + "'," + 0 + ",'" + errormessagatrimmed + "','" + DateTime.Now + "')";
-                                            SqlCommand activated = new SqlCommand(errorquery, conn);
+                                            string errorinstring = response.Content.ToString() == "" ? response.ErrorException.Message.ToString() : response.Content.ToString();
+                                            errorinstring = errorinstring.Replace("'", "");
+                                            errorinstring= errorinstring.Replace("\"", "");
+                                            //string errormessagatrimmed = errormessagatrimmedx.Replace("com.verint.textcapture.model.exception.", "Verint Text Capture Model Exception:");
+                                            // string checkquery = "select * from Report_Stat where ConversationId='" + ObjClass.id + "'";
+                                            string checkquery = "IF EXISTS (select * from Report_Stat where ConversationId='" + ObjClass.id + "') BEGIN update Report_Stat set status=" + 0 + ",Error_message='" + errorinstring + "',Date_Updated='" + DateTime.Now + "' where ConversationId='" + ObjClass.id + "' END ELSE BEGIN insert into Report_Stat (ConversationId,ChatStartTime,ChatEndTime,ThreadId,status,Error_message,Date_reported) values('" + ObjClass.id + "','" + ObjClass.startTime + "','" + ObjClass.endTime + "','" + ObjClass.threadId + "'," + 0 + ",'" + errorinstring + "','" + DateTime.Now + "') END";
+
+                                            SqlCommand activated = new SqlCommand(checkquery, conn);
                                             activated.ExecuteNonQuery();
+
                                             fail_count = fail_count + 1;
-                                            var s = response.StatusCode.ToString();
+                                            var s = response.StatusCode.ToString() =="0"? response.ErrorException.Message.ToString(): errorinstring;
                                             logerror(s);
+
+                                            
                                         }
 
                                     }
@@ -303,8 +324,8 @@ namespace EF_TextCapture_Service
                 // return retturnmeeesgae;
             }
             // return retturnmeeesgae;
-            
-            Console.ReadLine();
+
+            Environment.Exit(0);
         }
         public static void logger(Exception e)
         {
@@ -325,7 +346,7 @@ namespace EF_TextCapture_Service
         {
             StreamWriter custommessage = null;
             //custommessage = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "\\CustomLog.txt", true);
-            custommessage = new StreamWriter(@"C:\Text Capture\CustomLog.txt", true);
+            custommessage = new StreamWriter(@"C:\EF\Text Capture\CustomLog.txt", true);
             custommessage.WriteLine(DateTime.Now.ToString() + ":" + messageex);
             custommessage.Flush();
             custommessage.Close();

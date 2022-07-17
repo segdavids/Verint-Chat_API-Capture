@@ -75,7 +75,7 @@ namespace EF_TextCapture_Service
                         int statcode = Convert.ToInt32(hcconversationresponse.StatusCode);
                         if (statcode == 200)
                         {
-                            string action = "Conversations fetsched successfully";
+                            string action = "Conversations fetched successfully";
                             logerror("{action}");
                             var deserializer1 = new RestSharp.Serialization.Json.JsonDeserializer();
                             HC_Model.MainRoot2 cooc = deserializer1.Deserialize<HC_Model.MainRoot2>(hcconversationresponse);
