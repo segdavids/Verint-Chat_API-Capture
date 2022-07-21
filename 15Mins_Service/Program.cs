@@ -108,21 +108,67 @@ END
             sw.Write(sw.NewLine);
 
             // Write All Rows to the File
-            foreach (DataRow dr in d_table.Rows)
+            if (d_table.Rows.Count > 0)
             {
-                for (int ir = 0; ir < ColumnCount; ir++)
+                // Write All Rows to the File
+                foreach (DataRow dr in d_table.Rows)
                 {
-                    if (!Convert.IsDBNull(dr[ir]))
+                    for (int ir = 0; ir < ColumnCount; ir++)
                     {
-                        sw.Write(dr[ir].ToString());
+                        if (!Convert.IsDBNull(dr[ir]))
+                        {
+                            sw.Write(dr[ir].ToString());
+                        }
+                        if (ir < ColumnCount - 1)
+                        {
+                            sw.Write(FileDelimiter);
+                        }
                     }
-                    if (ir < ColumnCount - 1)
-                    {
-                        sw.Write(FileDelimiter);
-                    }
+                    sw.Write(sw.NewLine);
                 }
-                sw.Write(sw.NewLine);
+            }
+            else
+            {
+                string reportdate = DateTime.Now.ToString("MM/dd/yy");
+                string fromtime =  DateTime.Now.ToString("HH:mm"); ;// DateTime.ParseExact(fromtime, "HH:mm",
+                string totime = DateTime.Now.AddMinutes(-15).ToString("HH:mm");
+             
+                string timeinterval = fromtime + "-" + totime;
+                string queue = "3008";
 
+                DataTable dt = new DataTable();
+                dt.Columns.AddRange(new DataColumn[10]
+                {
+                        new DataColumn("ReportDate", typeof(string)),
+                        new DataColumn("TimeInterval", typeof(string)),
+                        new DataColumn("Queue", typeof(string)),
+                        new DataColumn("Chats", typeof(string)),
+                        new DataColumn("Replied", typeof(string)),
+                        new DataColumn("SL", typeof(string)),
+                        new DataColumn("ASA", typeof(string)),
+                        new DataColumn("AHT", typeof(string)),
+                        new DataColumn("staff", typeof(string)),
+                        new DataColumn("Abd", typeof(string))
+
+                });
+                dt.Rows.Add(reportdate, timeinterval, queue, "0", "0", "0", "0", "0", "0", "0");
+
+                // Write All Rows to the File
+                foreach (DataRow dr in dt.Rows)
+                {
+                    for (int ir = 0; ir < ColumnCount; ir++)
+                    {
+                        if (!Convert.IsDBNull(dr[ir]))
+                        {
+                            sw.Write(dr[ir].ToString());
+                        }
+                        if (ir < ColumnCount - 1)
+                        {
+                            sw.Write(FileDelimiter);
+                        }
+                    }
+                    sw.Write(sw.NewLine);
+                }
             }
             sw.Close();
         }
