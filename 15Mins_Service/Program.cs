@@ -129,9 +129,9 @@ END
             }
             else
             {
-                string reportdate = DateTime.Now.ToString("MM/dd/yy");
-                string fromtime =  DateTime.Now.ToString("HH:mm"); ;// DateTime.ParseExact(fromtime, "HH:mm",
-                string totime = DateTime.Now.AddMinutes(-15).ToString("HH:mm");
+                string reportdate = DateTime.Now.ToString("MM/dd/yyyy");
+                string totime =  DateTime.Now.ToString("HH:mm"); ;// DateTime.ParseExact(fromtime, "HH:mm",
+                string fromtime = DateTime.Now.AddMinutes(-15).ToString("HH:mm");
              
                 string timeinterval = fromtime + "-" + totime;
                 string queue = "3008";
