@@ -251,7 +251,8 @@ namespace EF_TextCapture_Service
 
                                         }
                                         //CREATE A FILE OUT OF THE OBJECT BEFORE SENDING TO SFTP
-                                        using (StreamWriter file = File.CreateText(@"C:\EF_RAW_DATA\"+DateTime.Now.ToString("dd/MM/yyyy")+".txt"))
+                                        logerror("Creating JSon file - SFTP Transfer for Conversation_Id: " + convid + "");
+                                        using (StreamWriter file = File.CreateText(@"C:\EF\Text Capture\JSONObject\" + convid+"_"+ DateTime.Now.ToString("ddMMyyyy")+".json"))
                                         {
                                             JsonSerializer serializer = new JsonSerializer();
                                             //serialize object directly into file stream
@@ -259,25 +260,26 @@ namespace EF_TextCapture_Service
                                         }
 
                                         //PUSHING TO SFTP FOLDER
-                                        //using (var sftpclient = new SftpClient(host, port, username, password))
-                                        //{
-                                        //    sftpclient.Connect();
-                                        //    if (sftpclient.IsConnected)
-                                        //    {
-                                        //        Debug.WriteLine("I'm connected to the client");
+                                        logerror("JSon Created successfully, now sending file to SFTP client for Conversation_Id: " + convid + "");
+                                        using (var sftpclient = new SftpClient(host, port, username, password))
+                                        {
+                                            sftpclient.Connect();
+                                            if (sftpclient.IsConnected)
+                                            {
+                                                logerror("Connected to SFTP: " + convid + "");
+                                                using (var fileStream = new FileStream(uploadFile, FileMode.Open))
+                                                {
 
-                                        //        using (var fileStream = new FileStream(uploadFile, FileMode.Open))
-                                        //        {
-
-                                        //            sftpclient.BufferSize = 4 * 1024; // bypass Payload error large files
-                                        //            sftpclient.UploadFile(fileStream, Path.GetFileName(uploadFile));
-                                        //        }
-                                        //    }
-                                        //    else
-                                        //    {
-                                        //        Debug.WriteLine("I couldn't connect");
-                                        //    }
-                                        //}
+                                                    sftpclient.BufferSize = 4 * 1024; // bypass Payload error large files
+                                                    sftpclient.UploadFile(fileStream, Path.GetFileName(uploadFile));
+                                                }
+                                                logerror("file sent to SFTP: " + convid + "");
+                                            }
+                                            else
+                                            {
+                                                logerror("Connection to SFTP server failed, trying again..: " + convid + "");
+                                            }
+                                        }
 
 
 

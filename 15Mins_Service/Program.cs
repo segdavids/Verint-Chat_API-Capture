@@ -35,7 +35,7 @@ namespace _15Mins_Service
             string q = @"BEGIN DECLARE @gdate DATETIME, @datetime DATETIME, @reportstartime datetime
 
 BEGIN
-        SELECT @gdate = convert(varchar(16), getdate(), 21)
+        SELECT @gdate = convert(varchar(16), '2022-07-25 07:30', 21)
 
     select @reportstartime = CAST('00:15' AS datetime)
 
