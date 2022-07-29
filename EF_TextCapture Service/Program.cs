@@ -16,6 +16,8 @@ using System.Net.Http.Headers;
 using RestSharp.Authenticators;
 using RestSharp;
 using Verint.Platform.Security;
+using Renci.SshNet;
+using Newtonsoft.Json;
 //using Newtonsoft.Json;
 //using Newtonsoft.Json.Linq;
 
@@ -26,7 +28,10 @@ namespace EF_TextCapture_Service
         static async Task Main(string[] args)
         {
             SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["VerintDB"].ConnectionString);
-
+             string host ;
+             string username ;
+            string password;
+            string workingdirectory;
 
             string hcurl;
             //string lla_id = "chat594842024220242@conference-2-standaloneclustera3caf.lab.local";
@@ -245,6 +250,37 @@ namespace EF_TextCapture_Service
                                             //NOW ADDING THE DATA TO RESPECTIVE OBJECT ARRAYS
 
                                         }
+                                        //CREATE A FILE OUT OF THE OBJECT BEFORE SENDING TO SFTP
+                                        using (StreamWriter file = File.CreateText(@"C:\EF_RAW_DATA\"+DateTime.Now.ToString("dd/MM/yyyy")+".txt"))
+                                        {
+                                            JsonSerializer serializer = new JsonSerializer();
+                                            //serialize object directly into file stream
+                                            serializer.Serialize(file, ObjClass);
+                                        }
+
+                                        //PUSHING TO SFTP FOLDER
+                                        //using (var sftpclient = new SftpClient(host, port, username, password))
+                                        //{
+                                        //    sftpclient.Connect();
+                                        //    if (sftpclient.IsConnected)
+                                        //    {
+                                        //        Debug.WriteLine("I'm connected to the client");
+
+                                        //        using (var fileStream = new FileStream(uploadFile, FileMode.Open))
+                                        //        {
+
+                                        //            sftpclient.BufferSize = 4 * 1024; // bypass Payload error large files
+                                        //            sftpclient.UploadFile(fileStream, Path.GetFileName(uploadFile));
+                                        //        }
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        Debug.WriteLine("I couldn't connect");
+                                        //    }
+                                        //}
+
+
+
                                         //NPW CALLING NTT API TO PUSH THE CHAT TRANSCRIPTS
 
 

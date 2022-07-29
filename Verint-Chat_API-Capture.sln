@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Verint-Chat_API-Capture", "Verint-Chat_API-Capture\Verint-Chat_API-Capture.csproj", "{CEFACE22-F900-4944-BB8F-D6721B419343}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OLD_Verint-Chat_API-Capture", "Verint-Chat_API-Capture\OLD_Verint-Chat_API-Capture.csproj", "{CEFACE22-F900-4944-BB8F-D6721B419343}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EF_TextCapture Service", "EF_TextCapture Service\EF_TextCapture Service.csproj", "{1FE48A4F-C761-4731-9289-DDE185AB30AA}"
 EndProject
