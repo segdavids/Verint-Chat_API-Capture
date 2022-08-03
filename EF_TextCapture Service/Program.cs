@@ -261,25 +261,25 @@ namespace EF_TextCapture_Service
 
                                         //PUSHING TO SFTP FOLDER
                                         logerror("JSon Created successfully, now sending file to SFTP client for Conversation_Id: " + convid + "");
-                                        using (var sftpclient = new SftpClient(host, port, username, password))
-                                        {
-                                            sftpclient.Connect();
-                                            if (sftpclient.IsConnected)
-                                            {
-                                                logerror("Connected to SFTP: " + convid + "");
-                                                using (var fileStream = new FileStream(uploadFile, FileMode.Open))
-                                                {
+                                        //using (var sftpclient = new SftpClient(host, port, username, password))
+                                        //{
+                                        //    sftpclient.Connect();
+                                        //    if (sftpclient.IsConnected)
+                                        //    {
+                                        //        logerror("Connected to SFTP: " + convid + "");
+                                        //        using (var fileStream = new FileStream(uploadFile, FileMode.Open))
+                                        //        {
 
-                                                    sftpclient.BufferSize = 4 * 1024; // bypass Payload error large files
-                                                    sftpclient.UploadFile(fileStream, Path.GetFileName(uploadFile));
-                                                }
-                                                logerror("file sent to SFTP: " + convid + "");
-                                            }
-                                            else
-                                            {
-                                                logerror("Connection to SFTP server failed, trying again..: " + convid + "");
-                                            }
-                                        }
+                                        //            sftpclient.BufferSize = 4 * 1024; // bypass Payload error large files
+                                        //            sftpclient.UploadFile(fileStream, Path.GetFileName(uploadFile));
+                                        //        }
+                                        //        logerror("file sent to SFTP: " + convid + "");
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        logerror("Connection to SFTP server failed, trying again..: " + convid + "");
+                                        //    }
+                                        //}
 
 
 
