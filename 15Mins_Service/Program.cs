@@ -55,7 +55,7 @@ SELECT ReportDate, TimeInterval, Queue, totatchats as Chats, Replied as Replied,
     THEN cast(cast((ISNULL((slaanswered* 1.0 / NULLIF(slatotal, 0)) *100,0))as decimal(5, 2))as float)
  else
                 0
- END AS SL, ISNULL((WaitTime / Replied), 0) as ASA, ISNULL((ChatDuration / Replied), 0) AS AHT, staff, Abd as Abd
+ END AS SL, ISNULL((WaitTime / NULLIF(Replied,0)), 0) as ASA, ISNULL((ChatDuration / NULLIF(Replied,0)), 0) AS AHT, staff, Abd as Abd
  FROM
  (
 
