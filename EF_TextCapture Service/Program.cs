@@ -25,14 +25,27 @@ namespace EF_TextCapture_Service
 {
     class Program
     {
-        string host;
-        string username;
-        string password;
-        string workingdirectory;
-        int port;
-        public async Task Main(string[] args)
+        
+        public static async Task Main(string[] args)
         {
-            getpassword();
+            string host = String.Empty;
+            string username = String.Empty;
+            string password = String.Empty;
+            string workingdirectory = String.Empty;
+            int port = 0;
+            //GET PASSWORD
+            string get = $"select * from sftp";
+            DataTable dt = Library.GetRequest(get);
+            if (dt.Rows.Count > 0)
+            {
+                string temppw = String.IsNullOrEmpty(dt.Rows[0]["password"].ToString()) ? "" : dt.Rows[0]["password"].ToString();
+                password = temppw;// Library.decryptpass(temppw);
+                username = String.IsNullOrEmpty(dt.Rows[0]["username"].ToString()) ? "" : dt.Rows[0]["username"].ToString();
+                host = String.IsNullOrEmpty(dt.Rows[0]["host"].ToString()) ? "" : dt.Rows[0]["host"].ToString();
+                port = Convert.ToInt32(String.IsNullOrEmpty(dt.Rows[0]["port"].ToString()) ? "0" : dt.Rows[0]["port"].ToString());
+            }
+
+
             SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["VerintDB"].ConnectionString);
            
 
@@ -263,6 +276,11 @@ namespace EF_TextCapture_Service
                                                     sftpclient.UploadFile(fileStream, Path.GetFileName(uploadFile));
                                                 }
                                                 logerror("file sent to SFTP: " + convid + "");
+                                                if (File.Exists(uploadFile))
+                                                {
+                                                    // If file found, delete it    
+                                                    File.Delete(uploadFile);
+                                                }
                                             }
                                             else
                                             {
@@ -381,16 +399,7 @@ namespace EF_TextCapture_Service
 
         public void getpassword()
         {
-            string get = $"select * from sftp";
-            DataTable dt= Library.GetRequest(get);
-            if(dt.Rows.Count>0)
-            {
-               string temppw = String.IsNullOrEmpty(dt.Rows[0]["password"].ToString())?"" : dt.Rows[0]["password"].ToString();
-                password = Library.encryptpass(temppw);
-                username =  String.IsNullOrEmpty(dt.Rows[0]["username"].ToString())?"" : dt.Rows[0]["username"].ToString();
-                host= String.IsNullOrEmpty(dt.Rows[0]["host"].ToString())?"" : dt.Rows[0]["host"].ToString();
-                port= Convert.ToInt32(String.IsNullOrEmpty(dt.Rows[0]["port"].ToString())?"0" : dt.Rows[0]["port"].ToString());
-            }
+           
 
 
         }

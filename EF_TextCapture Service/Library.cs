@@ -60,6 +60,17 @@ namespace EF_TextCapture_Service
             msg = Convert.ToBase64String(encode);
             return msg;
         }
+        static public string decryptpass(string encodedData)
+
+        {
+            //string from = Convert.FromBase64String(encodedData);
+            byte[] raw = Convert.FromBase64String(encodedData); // unpack the base-64 to a blob
+            string s = Encoding.UTF8.GetString(raw);
+            return s;
+
+           
+
+        }
         public static void logerror(string messageex)
         {
             StreamWriter custommessage = null;
