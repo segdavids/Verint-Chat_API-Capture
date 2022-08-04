@@ -33,7 +33,33 @@ namespace EF_TextCapture_Service
             catch
             { }
         }
-
+        public static DataTable GetRequest(string Query)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["VerintDB"].ConnectionString))
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter(Query, conn))
+                    {
+                        DataTable dt = new DataTable();
+                        sda.Fill(dt);
+                        return dt;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public static string encryptpass(string password)
+        {
+            string msg = "";
+            byte[] encode = new byte[password.Length];
+            encode = Encoding.UTF8.GetBytes(password);
+            msg = Convert.ToBase64String(encode);
+            return msg;
+        }
         public static void logerror(string messageex)
         {
             StreamWriter custommessage = null;

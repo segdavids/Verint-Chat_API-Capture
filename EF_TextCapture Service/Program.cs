@@ -25,31 +25,19 @@ namespace EF_TextCapture_Service
 {
     class Program
     {
-        static async Task Main(string[] args)
+        string host;
+        string username;
+        string password;
+        string workingdirectory;
+        int port;
+        public async Task Main(string[] args)
         {
+            getpassword();
             SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["VerintDB"].ConnectionString);
-             string host ;
-             string username ;
-            string password;
-            string workingdirectory;
+           
 
             string hcurl;
-            //string lla_id = "chat594842024220242@conference-2-standaloneclustera3caf.lab.local";
-            //string language = "en-us";
-            ////string type = "Conversation";
-            //string sourceType = "ExpertFlow HybriChat";
-            //string project = "1503806";
-            //string channel = "1504806";
-            //DateTime startTime;
-            //DateTime endTime;
-            //string subject = "";
-            //int direction = 2;
-            //string threadId = "";
-            //string datasource = "ACDJABDS";
-            //string parentId = string.Empty;
-            //// string sourceType = "ExpertFlow HybriChat";
-            // string sourceSubType = "Chats";
-            //string conversationtype = "InstantMessage";
+           
 
     LLA_Model.verint_interface retturnmeeesgae = new LLA_Model.verint_interface { };
 
@@ -261,25 +249,26 @@ namespace EF_TextCapture_Service
 
                                         //PUSHING TO SFTP FOLDER
                                         logerror("JSon Created successfully, now sending file to SFTP client for Conversation_Id: " + convid + "");
-                                        //using (var sftpclient = new SftpClient(host, port, username, password))
-                                        //{
-                                        //    sftpclient.Connect();
-                                        //    if (sftpclient.IsConnected)
-                                        //    {
-                                        //        logerror("Connected to SFTP: " + convid + "");
-                                        //        using (var fileStream = new FileStream(uploadFile, FileMode.Open))
-                                        //        {
+                                        using (var sftpclient = new SftpClient(host, port, username, password))
+                                        {
+                                            string uploadFile = @"C:\EF\Text Capture\JSONObject\" + convid + "_" + DateTime.Now.ToString("ddMMyyyy") + ".json";
+                                            sftpclient.Connect();
+                                            if (sftpclient.IsConnected)
+                                            {
+                                                logerror("Connected to SFTP: " + convid + "");
+                                                using (var fileStream = new FileStream(uploadFile, FileMode.Open))
+                                                {
 
-                                        //            sftpclient.BufferSize = 4 * 1024; // bypass Payload error large files
-                                        //            sftpclient.UploadFile(fileStream, Path.GetFileName(uploadFile));
-                                        //        }
-                                        //        logerror("file sent to SFTP: " + convid + "");
-                                        //    }
-                                        //    else
-                                        //    {
-                                        //        logerror("Connection to SFTP server failed, trying again..: " + convid + "");
-                                        //    }
-                                        //}
+                                                    sftpclient.BufferSize = 4 * 1024; // bypass Payload error large files
+                                                    sftpclient.UploadFile(fileStream, Path.GetFileName(uploadFile));
+                                                }
+                                                logerror("file sent to SFTP: " + convid + "");
+                                            }
+                                            else
+                                            {
+                                                logerror("Connection to SFTP server failed, trying again..: " + convid + "");
+                                            }
+                                        }
 
 
 
@@ -390,6 +379,21 @@ namespace EF_TextCapture_Service
             custommessage.Close();
         }
 
+        public void getpassword()
+        {
+            string get = $"select * from sftp";
+            DataTable dt= Library.GetRequest(get);
+            if(dt.Rows.Count>0)
+            {
+               string temppw = String.IsNullOrEmpty(dt.Rows[0]["password"].ToString())?"" : dt.Rows[0]["password"].ToString();
+                password = Library.encryptpass(temppw);
+                username =  String.IsNullOrEmpty(dt.Rows[0]["username"].ToString())?"" : dt.Rows[0]["username"].ToString();
+                host= String.IsNullOrEmpty(dt.Rows[0]["host"].ToString())?"" : dt.Rows[0]["host"].ToString();
+                port= Convert.ToInt32(String.IsNullOrEmpty(dt.Rows[0]["port"].ToString())?"0" : dt.Rows[0]["port"].ToString());
+            }
+
+
+        }
         private RestClient InitializeAndGetClient()
         {
             var cookieJar = new CookieContainer();
