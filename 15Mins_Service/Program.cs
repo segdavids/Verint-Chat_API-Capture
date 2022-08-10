@@ -32,10 +32,11 @@ namespace _15Mins_Service
 
             //DateTime final = temp+temptime;
             conn.Open();
+            //DO NOT CHANGE THE DATETIME FOR GDATE - 10-8-2022 REMEMBER THE RROR THAT GENERATED FILES FOR ONE STATIC DATE ND CREATED PROBLEMS
             string q = @"BEGIN DECLARE @gdate DATETIME, @datetime DATETIME, @reportstartime datetime
 
 BEGIN
-        SELECT @gdate = convert(varchar(16), '2022-07-25 07:30', 21)
+        SELECT @gdate = convert(varchar(16), getdate(), 21)
 
     select @reportstartime = CAST('00:15' AS datetime)
 
