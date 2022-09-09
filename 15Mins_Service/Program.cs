@@ -33,7 +33,7 @@ namespace _15Mins_Service
             //DateTime final = temp+temptime;
             conn.Open();
             //DO NOT CHANGE THE DATETIME FOR GDATE - 10-8-2022 REMEMBER THE RROR THAT GENERATED FILES FOR ONE STATIC DATE ND CREATED PROBLEMS
-            string q = @"BEGIN DECLARE @gdate DATETIME, @datetime DATETIME, @reportstartime datetime
+            string q = @"BEGIN DECLARE @gdate DATETIME, @datetime DATETIME, @reportstartime datetime, @service_level_threshold int
 
 BEGIN
         SELECT @gdate = convert(varchar(16), getdate(), 21)
@@ -42,21 +42,12 @@ BEGIN
 
     SELECT @datetime = DATEADD(mi, -15, @gdate)
 
+	Select @service_level_threshold = 90 -- NEW SL IS 90 SECS FROM LLA
+
 
 SELECT ReportDate, TimeInterval, Queue, totatchats as Chats, Replied as Replied,
- CASE
- WHEN sltype = 1
-
-    THEN ISNULL((slaanswered*1.0 / NULLIF((slatotal - slaabandoned), 0)) *100,0) 
- WHEN sltype = 3
-
-    THEN ISNULL(((slaanswered +slaabandoned) *1.0 / NULLIF((slatotal), 0)) *100,0)
- WHEN sltype = 2
-
-    THEN cast(cast((ISNULL((slaanswered* 1.0 / NULLIF(slatotal, 0)) *100,0))as decimal(5, 2))as float)
- else
-                0
- END AS SL, ISNULL((WaitTime / NULLIF(Replied,0)), 0) as ASA, ISNULL((ChatDuration / NULLIF(Replied,0)), 0) AS AHT, staff, Abd as Abd
+cast(cast((ISNULL((slaanswered* 1.0 / NULLIF(slatotal, 0)) *100,0))as decimal(5, 2))as float)
+ AS SL, ISNULL((WaitTime / NULLIF(Replied,0)), 0) as ASA, ISNULL((ChatDuration / NULLIF(Replied,0)), 0) AS AHT, staff, Abd as Abd
  FROM
  (
 
@@ -68,13 +59,13 @@ CONVERT([varchar], @gdate, 101) as ReportDate,
  CONVERT(VARCHAR(5), (CAST(@gdate as datetime)), 108) + '-' + CONVERT(VARCHAR(5), (CAST(@gdate as datetime) - @reportstartime), 108) as Time_Interval,
  count(distinct(qd.conversation_id)) as totatchats, 
  count(distinct(qd.agent_id)) as staff, 
- sum(case when((qd.enqueue_time is not null) and(qd.start_time is null) and(agent_id is null) and(bot_id is null)) then 1 else 0 end) as Abd, 
- sum(case when((qd.start_time is not null) and(qd.agent_id is not null)) then 1 else 0 end) as Replied, 
+ sum(case when((qd.enqueue_time is not null) and (qd.start_time is null) and (agent_id is null) and (bot_id is null)) then 1 else 0 end) as Abd, 
+ sum(case when((qd.start_time is not null) and (qd.agent_id is not null)) then 1 else 0 end) as Replied, 
   sum(DATEDIFF(second, CASE WHEN qd.session_start_time IS NOT NULL then qd.session_start_time end, qd.start_time)) AS WaitTime,
     SUM(DATEDIFF(SECOND, CASE WHEN qd.start_time IS NOT NULL then qd.start_time end, qd.end_time)) AS ChatDuration,
-      ISNULL(sum(case when qd.start_time is null and (CONVERT(datetime, (CAST(qd.end_time as datetime))-CAST(qd.session_start_time as datetime), 108)) <= (CONVERT(datetime, DATEADD(second, q.service_level_threshold, q.service_level_threshold), 108)) then 1 else 0 end) +sum(case when qd.start_time is not null and (CONVERT(datetime, (CAST(qd.start_time as datetime))-CAST(qd.session_start_time as datetime), 108)) <= (CONVERT(datetime, DATEADD(second, q.service_level_threshold, q.service_level_threshold), 108)) then 1 else 0 end),0) as slatotal, 
- ISNULL(sum(case when qd.start_time is null and (CONVERT(datetime, (CAST(qd.end_time as datetime))-CAST(qd.session_start_time as datetime), 108)) <= (CONVERT(datetime, DATEADD(second, q.service_level_threshold, q.service_level_threshold), 108)) then 1 else 0 end),0) as slaabandoned, 
- ISNULL(sum(case when qd.start_time is not null and (CONVERT(datetime, (CAST(qd.start_time as datetime))-CAST(qd.session_start_time as datetime), 108)) <= (CONVERT(datetime, DATEADD(second, q.service_level_threshold, q.service_level_threshold), 108)) then 1 else 0 end),0) as slaanswered
+      ISNULL(sum(case when (qd.enqueue_time is not null) and(qd.start_time is null) and (agent_id is null) and (bot_id is null) and (CONVERT(datetime, (CAST(qd.end_time as datetime))-CAST(qd.session_start_time as datetime), 108)) <= (CONVERT(datetime, DATEADD(second, @service_level_threshold, qd.enqueue_time), 108)) then 1 else 0 end) +sum(case when (qd.start_time is not null) and (qd.agent_id is not null) and (CONVERT(datetime, (CAST(qd.start_time as datetime))-CAST(qd.session_start_time as datetime), 108)) <= (CONVERT(datetime, DATEADD(second, @service_level_threshold, qd.start_time), 108)) then 1 else 0 end),0) as slatotal, 
+ ISNULL(sum(case when (qd.enqueue_time is not null) and(qd.start_time is null) and (agent_id is null) and(bot_id is null) and (CONVERT(datetime, (CAST(qd.end_time as datetime))-CAST(qd.session_start_time as datetime), 108)) <= (CONVERT(datetime, DATEADD(second, @service_level_threshold, qd.enqueue_time), 108)) then 1 else 0 end),0) as slaabandoned, 
+ ISNULL(sum(case when (qd.start_time is not null) and (qd.agent_id is not null) and (CONVERT(datetime, (CAST(qd.start_time as datetime))-CAST(qd.session_start_time as datetime), 108)) <= (CONVERT(datetime, DATEADD(second, @service_level_threshold, qd.start_time), 108)) then 1 else 0 end),0) as slaanswered
 
 from[EFHybridchat].[dbo].[Queue_Chat_Details] as qd
  INNER JOIN[EFHybridchat].[dbo].[Queues] as q
