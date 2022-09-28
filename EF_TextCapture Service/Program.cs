@@ -59,8 +59,10 @@ namespace EF_TextCapture_Service
 
                 string currtime = DateTime.Now.ToString("yyyy-MM-dd");
                 string yesttime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
-                //string urlpart = "/conversations/getAllConversations?start_time= " + yesttime.ToString("yyyy-mm-dd") + "%2000:00:01&end_time=" + currtime.ToString("yyyy-mm-dd") + "%2023:11:59";
-                string urlpart = "/conversations/getAllConversations?start_time=" + yesttime + "%2000:00:01&end_time=" + yesttime + "%2023:23:59";
+            //string urlpart = "/conversations/getAllConversations?start_time= " + yesttime.ToString("yyyy-mm-dd") + "%2000:00:01&end_time=" + currtime.ToString("yyyy-mm-dd") + "%2023:11:59";
+            
+                //string urlpart = "conversations/getAllConversations?start_time=2022-09-23&end_time=2022-09-24 00:00:59";
+                string urlpart = "/conversations/getAllConversations?start_time=" + yesttime + "&end_time=" + currtime + "";
                 var deserializer = new RestSharp.Serialization.Json.JsonDeserializer();
                 logerror("Going to get Hybrid Chat URL from DB");
                 string query = @"select hc_url from endpoints";// where url_name = 'getconversations'";
@@ -253,7 +255,7 @@ namespace EF_TextCapture_Service
                                         }
                                         //CREATE A FILE OUT OF THE OBJECT BEFORE SENDING TO SFTP
                                         logerror("Creating JSon file - SFTP Transfer for Conversation_Id: " + convid + "");
-                                        using (StreamWriter file = File.CreateText(@"C:\EF\Text Capture\JSONObject\" + convid+"_"+ DateTime.Now.ToString("ddMMyyyy")+".json"))
+                                        using (StreamWriter file = File.CreateText(@"C:\EF\Text Capture\JSONObject\" + convid+"_"+ DateTime.Now.AddDays(-1).ToString("ddMMyyyy")+".json"))
                                         {
                                             JsonSerializer serializer = new JsonSerializer();
                                             //serialize object directly into file stream
@@ -264,7 +266,7 @@ namespace EF_TextCapture_Service
                                         logerror("JSon Created successfully, now sending file to SFTP client for Conversation_Id: " + convid + "");
                                         using (var sftpclient = new SftpClient(host, port, username, password))
                                         {
-                                            string uploadFile = @"C:\EF\Text Capture\JSONObject\" + convid + "_" + DateTime.Now.ToString("ddMMyyyy") + ".json";
+                                            string uploadFile = @"C:\EF\Text Capture\JSONObject\" + convid + "_" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy") + ".json";
                                             sftpclient.Connect();
                                             if (sftpclient.IsConnected)
                                             {
