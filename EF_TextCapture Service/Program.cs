@@ -253,9 +253,16 @@ namespace EF_TextCapture_Service
                                             //NOW ADDING THE DATA TO RESPECTIVE OBJECT ARRAYS
 
                                         }
+                                        //DELETE ANY EXISTING FILE IN THE FOLDER
+                                        System.IO.DirectoryInfo di = new DirectoryInfo(@"C:\inetpub\wwwroot\Temp\");
+                                       
+                                        foreach (FileInfo file in di.EnumerateFiles())
+                                        {
+                                            file.Delete();
+                                        }
                                         //CREATE A FILE OUT OF THE OBJECT BEFORE SENDING TO SFTP
                                         logerror("Creating JSon file - SFTP Transfer for Conversation_Id: " + convid + "");
-                                        using (StreamWriter file = File.CreateText(@"C:\EF\Text Capture\JSONObject\" + convid+"_"+ DateTime.Now.AddDays(-1).ToString("ddMMyyyy")+".json"))
+                                        using (StreamWriter file = File.CreateText(@"C:\inetpub\wwwroot\Temp\" + convid+"_"+ DateTime.Now.AddDays(-1).ToString("ddMMyyyy")+".json"))
                                         {
                                             JsonSerializer serializer = new JsonSerializer();
                                             //serialize object directly into file stream
@@ -266,7 +273,7 @@ namespace EF_TextCapture_Service
                                         logerror("JSon Created successfully, now sending file to SFTP client for Conversation_Id: " + convid + "");
                                         using (var sftpclient = new SftpClient(host, port, username, password))
                                         {
-                                            string uploadFile = @"C:\EF\Text Capture\JSONObject\" + convid + "_" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy") + ".json";
+                                            string uploadFile = @"C:\inetpub\wwwroot\Temp\" + convid + "_" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy") + ".json";
                                             sftpclient.Connect();
                                             if (sftpclient.IsConnected)
                                             {
@@ -292,9 +299,14 @@ namespace EF_TextCapture_Service
 
 
 
+
+
+                                        //DELETING ANY REMNANT FILE IN TEMP FOLDER FOR JSON UPLOAD
+                                        foreach (FileInfo file in di.EnumerateFiles())
+                                        {
+                                            file.Delete();
+                                        }
                                         //NPW CALLING NTT API TO PUSH THE CHAT TRANSCRIPTS
-
-
                                         string LLA_url = "https://sydpvertxr01.iptel.lifeline.org.au/api/recording/textcapture/v1/ingestion";
                                         string test = "ed067050bbc1a63b285e970cf551dce5";
                                         // geo_json geoprop = new geo_json { type = "Feature", properties = "" };
