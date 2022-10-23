@@ -272,32 +272,32 @@ namespace EF_TextCapture_Service
                                             }
 
                                             //PUSHING TO SFTP FOLDER
-                                            logerror("JSon Created successfully, now sending file to SFTP client for Conversation_Id: " + convid + "");
-                                            using (var sftpclient = new SftpClient(host, port, username, password))
-                                            {
-                                                string uploadFile = @"C:\inetpub\wwwroot\Temp\" + convid + "_" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy") + ".json";
-                                                sftpclient.Connect();
-                                                if (sftpclient.IsConnected)
-                                                {
-                                                    logerror("Connected to SFTP: " + convid + "");
-                                                    using (var fileStream = new FileStream(uploadFile, FileMode.Open))
-                                                    {
+                                            //logerror("JSon Created successfully, now sending file to SFTP client for Conversation_Id: " + convid + "");
+                                            //using (var sftpclient = new SftpClient(host, port, username, password))
+                                            //{
+                                            //    string uploadFile = @"C:\inetpub\wwwroot\Temp\" + convid + "_" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy") + ".json";
+                                            //    sftpclient.Connect();
+                                            //    if (sftpclient.IsConnected)
+                                            //    {
+                                            //        logerror("Connected to SFTP: " + convid + "");
+                                            //        using (var fileStream = new FileStream(uploadFile, FileMode.Open))
+                                            //        {
 
-                                                        sftpclient.BufferSize = 4 * 1024; // bypass Payload error large files
-                                                        sftpclient.UploadFile(fileStream, Path.GetFileName(uploadFile));
-                                                    }
-                                                    logerror("file sent to SFTP: " + convid + "");
-                                                    if (File.Exists(uploadFile))
-                                                    {
-                                                        // If file found, delete it    
-                                                        File.Delete(uploadFile);
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    logerror("Connection to SFTP server failed, trying again..: " + convid + "");
-                                                }
-                                            }
+                                            //            sftpclient.BufferSize = 4 * 1024; // bypass Payload error large files
+                                            //            sftpclient.UploadFile(fileStream, Path.GetFileName(uploadFile));
+                                            //        }
+                                            //        logerror("file sent to SFTP: " + convid + "");
+                                            //        if (File.Exists(uploadFile))
+                                            //        {
+                                            //            // If file found, delete it    
+                                            //            File.Delete(uploadFile);
+                                            //        }
+                                            //    }
+                                            //    else
+                                            //    {
+                                            //        logerror("Connection to SFTP server failed, trying again..: " + convid + "");
+                                            //    }
+                                            //}
 
 
 
@@ -357,7 +357,7 @@ namespace EF_TextCapture_Service
                                         else
                                         {
                                             //NO AGENT IN THE ACTOR LIST SO DO NOTHING
-                                           string noagenterror = "No agent exist in the conversation: " + convid + "";                                          
+                                           string noagenterror = "No agent exist in the conversation: " + convid + "";
                                             logerror(noagenterror);
                                         }
                                     }
