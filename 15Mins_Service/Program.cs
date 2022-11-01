@@ -42,7 +42,7 @@ BEGIN
 
     SELECT @datetime = DATEADD(mi, -15, @gdate)
 
-	Select @service_level_threshold = 180 -- NEW SL IS 90 SECS FROM LLA
+	Select @service_level_threshold = 90 -- NEW SL IS 90 SECS FROM LLA
 
 
 SELECT ReportDate, TimeInterval, Queue, totatchats as Chats, Replied as Replied,
