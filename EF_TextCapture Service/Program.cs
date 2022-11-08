@@ -272,32 +272,32 @@ namespace EF_TextCapture_Service
                                             }
 
                                             //PUSHING TO SFTP FOLDER
-                                            //logerror("JSon Created successfully, now sending file to SFTP client for Conversation_Id: " + convid + "");
-                                            //using (var sftpclient = new SftpClient(host, port, username, password))
-                                            //{
-                                            //    string uploadFile = @"C:\inetpub\wwwroot\Temp\" + convid + "_" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy") + ".json";
-                                            //    sftpclient.Connect();
-                                            //    if (sftpclient.IsConnected)
-                                            //    {
-                                            //        logerror("Connected to SFTP: " + convid + "");
-                                            //        using (var fileStream = new FileStream(uploadFile, FileMode.Open))
-                                            //        {
+                                            logerror("json created successfully, now sending file to sftp client for conversation_id: " + convid + "");
+                                            using (var sftpclient = new SftpClient(host, port, username, password))
+                                            {
+                                                string uploadfile = @"c:\inetpub\wwwroot\temp\" + convid + "_" + DateTime.Now.AddDays(-1).ToString("ddmmyyyy") + ".json";
+                                                sftpclient.Connect();
+                                                if (sftpclient.IsConnected)
+                                                {
+                                                    logerror("connected to sftp: " + convid + "");
+                                                    using (var filestream = new FileStream(uploadfile, FileMode.Open))
+                                                    {
 
-                                            //            sftpclient.BufferSize = 4 * 1024; // bypass Payload error large files
-                                            //            sftpclient.UploadFile(fileStream, Path.GetFileName(uploadFile));
-                                            //        }
-                                            //        logerror("file sent to SFTP: " + convid + "");
-                                            //        if (File.Exists(uploadFile))
-                                            //        {
-                                            //            // If file found, delete it    
-                                            //            File.Delete(uploadFile);
-                                            //        }
-                                            //    }
-                                            //    else
-                                            //    {
-                                            //        logerror("Connection to SFTP server failed, trying again..: " + convid + "");
-                                            //    }
-                                            //}
+                                                        sftpclient.BufferSize = 4 * 1024; // bypass payload error large files
+                                                        sftpclient.UploadFile(filestream, Path.GetFileName(uploadfile));
+                                                    }
+                                                    logerror("file sent to sftp: " + convid + "");
+                                                    if (File.Exists(uploadfile))
+                                                    {
+                                                        // if file found, delete it    
+                                                        File.Delete(uploadfile);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    logerror("connection to sftp server failed, trying again..: " + convid + "");
+                                                }
+                                            }
 
 
 
