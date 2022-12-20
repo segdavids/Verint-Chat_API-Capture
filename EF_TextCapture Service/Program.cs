@@ -210,9 +210,6 @@ namespace EF_TextCapture_Service
                                     {
                                         file.Delete();
                                     }
-                                    //string formatedtime = looper.startTime.ToString("yyyy-MM-dd'T'HH:mm:ssZ");
-                                    //formatedtime = formatedtime.Remove(17);
-                                    //formatedtime = formatedtime.Replace(":", "");
                                     //CREATE A FILE OUT OF THE OBJECT BEFORE SENDING TO SFTP
                                     Library.logerror("Creating JSon file - SFTP Transfer for Conversation_Id: " + convid + "");
                                     using (StreamWriter file = File.CreateText(@"C:\inetpub\wwwroot\temp\" + convid +  ".json"))
