@@ -52,6 +52,27 @@ namespace EF_TextCapture_Service
                 throw ex;
             }
         }
+
+        /// <summary>
+        /// DEACTIVATE ADVERTISEMENT
+        /// </summary>
+        /// <param name="Query"></param>
+        /// <returns></returns>
+        public static string NonQeryRequest(string Query)
+        {
+            string Statcode = string.Empty;
+            SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["VerintDB"].ConnectionString);
+            conn.Open();
+            SqlCommand cmd = new SqlCommand(Query, conn);
+            int result = cmd.ExecuteNonQuery();
+            if (result > 0)
+                Statcode = "200";
+            else
+                Statcode = "400";
+            conn.Close();
+
+            return Statcode;
+        }
         public static string encryptpass(string password)
         {
             string msg = "";
