@@ -100,6 +100,7 @@ namespace EF_TextCapture_Service
             custommessage.WriteLine(DateTime.Now.ToString() + ":" + messageex);
             custommessage.Flush();
             custommessage.Close();
+            Console.WriteLine(messageex);
         }
 
         public static LLA_Model.verint_interface Post(HC_Model.HC_Interface hcapicall)

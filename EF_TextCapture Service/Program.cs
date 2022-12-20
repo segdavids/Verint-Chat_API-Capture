@@ -246,6 +246,7 @@ namespace EF_TextCapture_Service
                                         else
                                         {
                                             Library.logerror("connection to sftp server failed, trying again..: " + convid + "");
+                                            Console.WriteLine("connection to sftp server failed, trying again..: " + convid + "");
                                         }
                                     }
                                     //DELETING ANY REMNANT FILE IN TEMP FOLDER FOR JSON UPLOAD
@@ -376,6 +377,7 @@ namespace EF_TextCapture_Service
             custommessage.WriteLine(DateTime.Now.ToString() + ":" + messageex);
             custommessage.Flush();
             custommessage.Close();
+            Console.WriteLine(messageex);
         }
 
         public void getpassword()
