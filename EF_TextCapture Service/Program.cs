@@ -210,12 +210,12 @@ namespace EF_TextCapture_Service
                                     {
                                         file.Delete();
                                     }
-                                    string formatedtime = looper.startTime.ToString("yyyy-MM-dd'T'HH:mm:ssZ");
-                                    formatedtime = formatedtime.Remove(17);
-                                    formatedtime = formatedtime.Replace(":", "");
+                                    //string formatedtime = looper.startTime.ToString("yyyy-MM-dd'T'HH:mm:ssZ");
+                                    //formatedtime = formatedtime.Remove(17);
+                                    //formatedtime = formatedtime.Replace(":", "");
                                     //CREATE A FILE OUT OF THE OBJECT BEFORE SENDING TO SFTP
                                     Library.logerror("Creating JSon file - SFTP Transfer for Conversation_Id: " + convid + "");
-                                    using (StreamWriter file = File.CreateText(@"C:\inetpub\wwwroot\temp\" + convid + "_" + formatedtime + ".json"))
+                                    using (StreamWriter file = File.CreateText(@"C:\inetpub\wwwroot\temp\" + convid +  ".json"))
                                     {
                                         JsonSerializer serializer = new JsonSerializer();
                                         //serialize object directly into file stream
@@ -226,7 +226,7 @@ namespace EF_TextCapture_Service
                                     Library.logerror("json created successfully, now sending file to sftp client for conversation_id: " + convid + "");
                                     using (var sftpclient = new SftpClient(host, port, username, new[] { privateKey }))
                                     {
-                                        string uploadfile = @"c:\inetpub\wwwroot\temp\" + convid + "_" + formatedtime + ".json";
+                                        string uploadfile = @"c:\inetpub\wwwroot\temp\" + convid + ".json";
                                         sftpclient.Connect();
                                         if (sftpclient.IsConnected)
                                         {
@@ -246,7 +246,6 @@ namespace EF_TextCapture_Service
                                         else
                                         {
                                             Library.logerror("connection to sftp server failed, trying again..: " + convid + "");
-                                            Console.WriteLine("connection to sftp server failed, trying again..: " + convid + "");
                                         }
                                     }
                                     //DELETING ANY REMNANT FILE IN TEMP FOLDER FOR JSON UPLOAD
