@@ -73,7 +73,7 @@ from[EFHybridchat].[dbo].[Queue_Chat_Details] as qd
  INNER JOIN[EFHybridchat].[dbo].[Queues] as q
  ON qd.queue_id = q.queue_id
 where qd.session_start_time between @datetime and @gdate and conversation_id not in (select subq.conversation_id from[EFHybridchat].[dbo].[Queue_Chat_Details] as subq where subq.session_start_time between @datetime and @gdate and subq.ended_by in ('RONA'))
-GROUP BY  qd.queue_id,q.service_level_type,qd.session_start_time
+GROUP BY  qd.queue_id,q.service_level_type
 ) t
 END
  END
