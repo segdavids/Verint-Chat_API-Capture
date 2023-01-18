@@ -32,6 +32,9 @@ namespace _15Mins_Service
 
             //DateTime final = temp+temptime;
             conn.Open();
+
+
+
             //DO NOT CHANGE THE DATETIME FOR GDATE - 10-8-2022 REMEMBER THE RROR THAT GENERATED FILES FOR ONE STATIC DATE ND CREATED PROBLEMS
             string q = @"BEGIN DECLARE @gdate DATETIME, @datetime DATETIME, @reportstartime datetime, @service_level_threshold int
 
@@ -45,30 +48,32 @@ BEGIN
 	Select @service_level_threshold = 90 -- NEW SL IS 90 SECS FROM LLA
 
 
-SELECT ReportDate, TimeInterval, Queue, totatchats as Chats, Replied as Replied,
+SELECT ReportDate,Interval, TimeInterval, Queue, totatchats as Chats, Replied as Replied,
 cast(cast((ISNULL((slaanswered* 1.0 / NULLIF(totatchats, 0)) *100,0))as decimal(5, 2))as float)
  AS SL, ISNULL((WaitTime / NULLIF(Replied,0)), 0) as ASA, ISNULL((ChatDuration / NULLIF(Replied,0)), 0) AS AHT, staff, Abd as Abd
  FROM
  (
+
  Select(CONVERT(VARCHAR(5), (CAST(@gdate as datetime) - @reportstartime), 108)) + '-' + (CONVERT(VARCHAR(5), (CAST(@gdate as datetime)), 108)) as TimeInterval,
 qd.queue_id as Queue,
  q.service_level_type as sltype,
-CONVERT([varchar], @gdate, 101) as ReportDate, 
- CONVERT(VARCHAR(5), (CAST(@gdate as datetime)), 108) as Report_Time, 
- CONVERT(VARCHAR(5), (CAST(@gdate as datetime)), 108) + '-' + CONVERT(VARCHAR(5), (CAST(@gdate as datetime) - @reportstartime), 108) as Time_Interval,
- count(distinct(qd.conversation_id)) as totatchats, 
- count(distinct(qd.agent_id)) as staff, 
+Convert(Varchar,CAst(session_start_time as Date),101) as ReportDate, 
+CONVERT(VARCHAR(5),DATEADD(MINUTE,(DATEDIFF(MINUTE,0,session_start_time)/15)*15,0),108) + ' - ' + CONVERT(VARCHAR(5),DATEADD(MINUTE,15,DATEADD(MINUTE,DATEDIFF(MINUTE,0,session_start_time)/15*15,0)),108) AS Interval,
+CONVERT(VARCHAR(5), (CAST(@gdate as datetime)), 108) as Report_Time, 
+CONVERT(VARCHAR(5), (CAST(@gdate as datetime)), 108) + '-' + CONVERT(VARCHAR(5), (CAST(@gdate as datetime) - @reportstartime), 108) as Time_Interval,
+count(distinct(qd.conversation_id)) as totatchats, 
+count(distinct(qd.agent_id)) as staff, 
  sum(case when((qd.enqueue_time is not null) and (qd.start_time is null) and (qd.end_time is not null) and qd.ended_by in ('customer' , 'network' , 'bot') ) then 1 else 0 end) as Abd, 
- sum(case when((qd.enqueue_time is not null) and (qd.start_time is not null) and (qd.agent_id is not null)) then 1 else 0 end) as Replied, 
-  sum(DATEDIFF(second, CASE WHEN qd.session_start_time IS NOT NULL then qd.session_start_time end, qd.start_time)) AS WaitTime,
+ sum(case when qd.enqueue_time is not null and qd.start_time is not null and qd.agent_id is not null then 1 else 0 end) as Replied, 
+  sum(DATEDIFF(second, CASE WHEN qd.enqueue_time IS NOT NULL then qd.enqueue_time end, qd.start_time)) AS WaitTime,
     SUM(DATEDIFF(SECOND, CASE WHEN qd.start_time IS NOT NULL then qd.start_time end, qd.end_time)) AS ChatDuration,
- ISNULL(sum(case when (qd.enqueue_time is not null) and (qd.start_time is null) and (qd.end_time is not null) and qd.ended_by in ('customer' , 'network' , 'bot') and DATEDIFF(second,qd.enqueue_time,qd.end_time) <=@service_level_threshold then 1 else 0 end),0) as slaabandoned, 
- ISNULL(sum(case when (qd.enqueue_time is not null) and (qd.agent_id is not null) and DATEDIFF(SECOND,qd.enqueue_time,qd.start_time)  <=  @service_level_threshold then 1 else 0 end),0) as slaanswered
+ ISNULL(sum(case when qd.enqueue_time is not null and qd.start_time is null and qd.end_time is not null and qd.ended_by in ('customer' , 'network' , 'bot') and DATEDIFF(second,qd.enqueue_time,qd.end_time) <=@service_level_threshold then 1 else 0 end),0) as slaabandoned, 
+ ISNULL(sum(case when qd.enqueue_time is not null and qd.agent_id is not null and DATEDIFF(SECOND,qd.enqueue_time,qd.start_time)  <=  @service_level_threshold then 1 else 0 end),0) as slaanswered
 from[EFHybridchat].[dbo].[Queue_Chat_Details] as qd
  INNER JOIN[EFHybridchat].[dbo].[Queues] as q
  ON qd.queue_id = q.queue_id
-where qd.session_start_time >= (CONVERT(datetime, (CAST(dateadd(mi, datediff(mi, 0, @gdate), 0) as datetime) - @reportstartime), 120)) and qd.session_start_time <= (CONVERT(datetime, (CAST(dateadd(mi, datediff(mi, 0, @gdate), 0) as datetime)), 120))
-GROUP BY  qd.queue_id,q.service_level_type
+where qd.session_start_time between @datetime and @gdate and conversation_id not in (select subq.conversation_id from[EFHybridchat].[dbo].[Queue_Chat_Details] as subq where subq.session_start_time between @datetime and @gdate and subq.ended_by in ('RONA'))
+GROUP BY  qd.queue_id,q.service_level_type,qd.session_start_time
 ) t
 END
  END
