@@ -48,7 +48,7 @@ BEGIN
 	Select @service_level_threshold = 90 -- NEW SL IS 90 SECS FROM LLA
 
 
-SELECT ReportDate,Interval, TimeInterval, Queue, totatchats as Chats, Replied as Replied,
+SELECT ReportDate, TimeInterval, Queue, totatchats as Chats, Replied as Replied,
 cast(cast((ISNULL((slaanswered* 1.0 / NULLIF(totatchats, 0)) *100,0))as decimal(5, 2))as float)
  AS SL, ISNULL((WaitTime / NULLIF(Replied,0)), 0) as ASA, ISNULL((ChatDuration / NULLIF(Replied,0)), 0) AS AHT, staff, Abd as Abd
  FROM
@@ -57,8 +57,7 @@ cast(cast((ISNULL((slaanswered* 1.0 / NULLIF(totatchats, 0)) *100,0))as decimal(
  Select(CONVERT(VARCHAR(5), (CAST(@gdate as datetime) - @reportstartime), 108)) + '-' + (CONVERT(VARCHAR(5), (CAST(@gdate as datetime)), 108)) as TimeInterval,
 qd.queue_id as Queue,
  q.service_level_type as sltype,
-Convert(Varchar,CAst(session_start_time as Date),101) as ReportDate, 
-CONVERT(VARCHAR(5),DATEADD(MINUTE,(DATEDIFF(MINUTE,0,session_start_time)/15)*15,0),108) + ' - ' + CONVERT(VARCHAR(5),DATEADD(MINUTE,15,DATEADD(MINUTE,DATEDIFF(MINUTE,0,session_start_time)/15*15,0)),108) AS Interval,
+Convert(Varchar,CAst(@gdate as Date),101) as ReportDate, 
 CONVERT(VARCHAR(5), (CAST(@gdate as datetime)), 108) as Report_Time, 
 CONVERT(VARCHAR(5), (CAST(@gdate as datetime)), 108) + '-' + CONVERT(VARCHAR(5), (CAST(@gdate as datetime) - @reportstartime), 108) as Time_Interval,
 count(distinct(qd.conversation_id)) as totatchats, 
