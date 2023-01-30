@@ -18,6 +18,8 @@ using RestSharp;
 using Verint.Platform.Security;
 using Renci.SshNet;
 using Newtonsoft.Json;
+using MongoDB.Driver;
+using static EF_TextCapture_Service.HC_Model;
 //using Newtonsoft.Json;
 //using Newtonsoft.Json.Linq;
 
@@ -71,6 +73,11 @@ namespace EF_TextCapture_Service
 
                     //GET CONVERSTATIONS
                     logerror("Fetching AllConversations from Hybrid Chat MongoDB");
+                    MongoClient dbClient = new MongoClient("mongodb://10.40.5.30:27017/?directConnection=true");   //("mongodb://10.40.5.30:27017/chatsolution?tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true&directConnection=true");
+                    var database = dbClient.GetDatabase("chatsolution");
+                    var conversatrioncollection = database.GetCollection<Root2>("conversations");
+
+
                     var gethcconversations = new RestSharp.RestClient(getconvourl);
                     var getconvorequest = new RestSharp.RestRequest(getconvourl, RestSharp.Method.GET);
                     var hcconversationresponse = gethcconversations.Execute(getconvorequest);
