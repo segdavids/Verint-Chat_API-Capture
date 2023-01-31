@@ -99,7 +99,7 @@ namespace EF_TextCapture_Service
         // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
         public class Root2
         {
-            public string _id { get; set; }
+            public string cid { get; set; }
             public List<object> participant { get; set; }
             public List<object> roles { get; set; }
             public List<object> handRaise { get; set; }

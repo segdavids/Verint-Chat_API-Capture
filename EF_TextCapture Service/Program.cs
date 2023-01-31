@@ -73,9 +73,16 @@ namespace EF_TextCapture_Service
 
                     //GET CONVERSTATIONS
                     logerror("Fetching AllConversations from Hybrid Chat MongoDB");
-                    MongoClient dbClient = new MongoClient("mongodb://10.40.5.30:27017/?directConnection=true");   //("mongodb://10.40.5.30:27017/chatsolution?tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true&directConnection=true");
+                    string connect = ConfigurationManager.ConnectionStrings["mongodbcon"].ConnectionString;
+                    MongoClient dbClient = new MongoClient(connect);   //("mongodb://10.40.5.30:27017/chatsolution?tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true&directConnection=true");
                     var database = dbClient.GetDatabase("chatsolution");
                     var conversatrioncollection = database.GetCollection<Root2>("conversations");
+                    var post = conversatrioncollection.Find("test").ToList();
+                    foreach (var conversation in post)
+                    {
+                        string id = conversation.id;
+                        string firstname = conversation.channel;
+                    }
 
 
                     var gethcconversations = new RestSharp.RestClient(getconvourl);
