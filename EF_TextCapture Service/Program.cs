@@ -77,11 +77,13 @@ namespace EF_TextCapture_Service
                     MongoClient dbClient = new MongoClient(connect);   //("mongodb://10.40.5.30:27017/chatsolution?tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true&directConnection=true");
                     var database = dbClient.GetDatabase("chatsolution");
                     var conversatrioncollection = database.GetCollection<Root2>("conversations");
-                    var post = conversatrioncollection.Find("test").ToList();
+                    var filter = Builders<Root2>.Filter.Gte(x => x.state, "CLOSED");
+                    var post = conversatrioncollection.Find(filter).ToList();
                     foreach (var conversation in post)
                     {
                         string id = conversation.id;
                         string firstname = conversation.channel;
+                        DateTime endti = conversation.endTime;
                     }
 
 
