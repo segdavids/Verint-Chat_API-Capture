@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -97,8 +98,10 @@ namespace EF_TextCapture_Service
 
         //BEGINNING OF CLASS TO FETCH MESSAGES REAPONSE
         // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
+        [BsonIgnoreExtraElements]
         public class Root2
         {
+            [BsonId] [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
             public string cid { get; set; }
             public List<object> participant { get; set; }
             public List<object> roles { get; set; }
@@ -118,7 +121,8 @@ namespace EF_TextCapture_Service
             public DateTime createdAt { get; set; }
             public DateTime updatedAt { get; set; }
             public int __v { get; set; }
-            public List<object> participantJoinTime { get; set; }
+            
+            public object participantJoinTime { get; set; }
             public DateTime endTime { get; set; }
         }
 

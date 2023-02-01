@@ -20,6 +20,7 @@ using Renci.SshNet;
 using Newtonsoft.Json;
 using MongoDB.Driver;
 using static EF_TextCapture_Service.HC_Model;
+using MongoDB.Bson;
 //using Newtonsoft.Json;
 //using Newtonsoft.Json.Linq;
 
@@ -58,55 +59,57 @@ namespace EF_TextCapture_Service
 
             try
             {
-
-                string currtime = DateTime.Now.ToString("yyyy-MM-dd");
-                string yesttime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");            
-                string urlpart = "/getconversations?start_time=" + yesttime + "&end_time=" + currtime + "";
-                var deserializer = new RestSharp.Serialization.Json.JsonDeserializer();
-                logerror("Going to get Hybrid Chat URL from DB");
+                //string currtime = DateTime.Now.ToString("yyyy-MM-dd");
+                string yeststarttime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd") + "T00:00:00.000+11:00";
+                string yestendtime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd") + "T23:59:59.999+11:00";
+                DateTime finalstarttime = Convert.ToDateTime(yeststarttime);
+                DateTime finalendtime = Convert.ToDateTime(yestendtime);
+                var starttime = DateTime.SpecifyKind(finalstarttime, DateTimeKind.Utc);// DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
+                var endtime = DateTime.SpecifyKind(finalendtime, DateTimeKind.Utc);
+                //var deserializer = new RestSharp.Serialization.Json.JsonDeserializer();
+                string action = "Going to get Hybrid Chat URL from DB";
+                Library.logerror(action);
                 string query = @"select hc_url from endpoints";
                 DataTable querydt = Library.GetRequest(query);
                 if (querydt.Rows.Count > 0)
                 {
                     hcurl = querydt.Rows[0]["hc_url"].ToString().Trim();
-                    string getconvourl = hcurl + urlpart;
-
+                    action = "Fetching All Conversations from Hybrid Chat MongoDB";
                     //GET CONVERSTATIONS
-                    logerror("Fetching AllConversations from Hybrid Chat MongoDB");
-                    string connect = ConfigurationManager.ConnectionStrings["mongodbcon"].ConnectionString;
-                    MongoClient dbClient = new MongoClient(connect);   //("mongodb://10.40.5.30:27017/chatsolution?tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true&directConnection=true");
+                    Library.logerror(action);
+                    var connect = ConfigurationManager.AppSettings["conmongo"];
+                    MongoClient dbClient = new MongoClient("mongodb://10.40.5.30:27017/?directConnection=true");   //("mongodb://10.40.5.30:27017/chatsolution?tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true&directConnection=true");
                     var database = dbClient.GetDatabase("chatsolution");
                     var conversatrioncollection = database.GetCollection<Root2>("conversations");
-                    var filter = Builders<Root2>.Filter.Gte(x => x.state, "CLOSED");
-                    var post = conversatrioncollection.Find(filter).ToList();
-                    foreach (var conversation in post)
-                    {
-                        string id = conversation.id;
-                        string firstname = conversation.channel;
-                        DateTime endti = conversation.endTime;
-                    }
-
-
-                    var gethcconversations = new RestSharp.RestClient(getconvourl);
-                    var getconvorequest = new RestSharp.RestRequest(getconvourl, RestSharp.Method.GET);
-                    var hcconversationresponse = gethcconversations.Execute(getconvorequest);
-
-                    var statcode = hcconversationresponse;
-                    if (statcode.StatusCode == HttpStatusCode.OK)
-                    {
-                        if (statcode.Content.Length > 5)
-                        {
-                            string action = "Conversations Fetched successfully";
+                    var filterbuilder = Builders<Root2>.Filter;
+                    var filter = filterbuilder.Eq(x => x.state, "CLOSED") & filterbuilder.Gte(y => y.createdAt, starttime) & filterbuilder.Lte(z => z.endTime, endtime);
+                    var post = conversatrioncollection.Find(filter);
+                    List<Root2> poster = post.ToList();
+                    //var test = post.Find(filter).                   
+                    //var gethcconversations = new RestSharp.RestClient(getconvourl);
+                    //var getconvorequest = new RestSharp.RestRequest(getconvourl, RestSharp.Method.GET);
+                    //var hcconversationresponse = gethcconversations.Execute(getconvorequest);
+                    //var statcode = hcconversationresponse;               
+                        if (poster.Count > 0)
+                        {                      
+                         action = "Conversations Fetched successfully";
                             logerror(action);
-                            var deserializer1 = new RestSharp.Serialization.Json.JsonDeserializer();
-                            var cooc = deserializer1.Deserialize<List<HC_Model.Root2>>(hcconversationresponse);
-                            logerror("looping through the conversation IDs");
-                            int success_count = 0;
+                        Library.logerror(action);
+                        //var deserializer1 = new RestSharp.Serialization.Json.JsonDeserializer();
+                        //var cooc = deserializer1.Deserialize<List<HC_Model.Root2>>(hcconversationresponse);
+                        action = "looping through the conversation IDs";
+                        logerror(action);
+                        Library.logerror(action);
+                        int success_count = 0;
                             int fail_count = 0;
-                            foreach (var looper in cooc)
+                        int totalconvcount = 0;
+                        int totalchatssenttoftp = 0;
+                        Library.logerror(poster.Count+ " Conversatiosn found");
+                        foreach (var looper in poster)
                             {
                                 string convid = looper.id;
                                 //GET MESSAGES
+                                totalconvcount++;
                                 string getmessageurl_part = $"/getMessages?conversationId={convid}";
                                 string getmessageurl = hcurl + getmessageurl_part;
                                 Library.logerror("Going to fetch All Chats for Conversation_Id: " + convid + " from EF_HybridChat");
@@ -250,7 +253,9 @@ namespace EF_TextCapture_Service
                                                 sftpclient.UploadFile(filestream, Path.GetFileName(uploadfile));
                                             }
                                             Library.logerror("file sent to sftp: " + convid + "");
-                                            if (File.Exists(uploadfile))
+                                            totalchatssenttoftp = totalchatssenttoftp+1;
+                                            Library.logerror(totalchatssenttoftp + " conversation files sent to SFTP");
+                                        if (File.Exists(uploadfile))
                                             {
                                                 // if file found, delete it    
                                                 File.Delete(uploadfile);
@@ -338,6 +343,7 @@ namespace EF_TextCapture_Service
                                         string noagenterror = "No agent exist in the conversation: " + convid + "";
                                         Library.logerror(noagenterror);
                                     }
+
                                 }
                                 else
                                 //,CONVERSATION ID DID NOT RETURN 200 OK
@@ -345,17 +351,18 @@ namespace EF_TextCapture_Service
                                     Library.logerror("Error fetcghing messages for Conversation_Id: " + convid + " " + GetMessageStatcode + "");
                                 }
                             }
-                        }
+                        Library.logerror("Total Conversations Found: "+ totalconvcount + "");
+                        Library.logerror("Total Conversations files sent to SFTP: " + totalchatssenttoftp + "");
                     }
-                    else if (statcode.StatusCode != HttpStatusCode.OK)
-                    {
-                        string errormessage = "Conversations could not be Fetched from EF Hybrid Chat";
-                        logerror(errormessage);
-                    }
+                        else
+                        {
+                            string errormessage = "Conversations could not be Fetched from EF Hybrid Chat";
+                            logerror(errormessage);
+                        }                
                 }
                 else
                 {
-                    string action = "System could not get the Hybrid Chat Reporting URL";
+                     action = "System could not get the Hybrid Chat Reporting URL";
                     Library.logerror(action);
                 }
             }
