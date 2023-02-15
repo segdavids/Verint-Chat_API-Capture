@@ -82,7 +82,7 @@ namespace EF_TextCapture_Service
                     var database = dbClient.GetDatabase("chatsolution");
                     var conversatrioncollection = database.GetCollection<Root2>("conversations");
                     var filterbuilder = Builders<Root2>.Filter;
-                    var filter = filterbuilder.Eq(x => x.state, "CLOSED") & filterbuilder.Gte(y => y.createdAt, starttime) & filterbuilder.Lte(z => z.endTime, endtime);
+                    var filter = filterbuilder.Eq(x => x.state, "CLOSED") & filterbuilder.Gte(y => y.createdAt, starttime) & filterbuilder.Lte(z => z.updatedAt, endtime);
                     var post = conversatrioncollection.Find(filter);
                     List<Root2> poster = post.ToList();
                     //var test = post.Find(filter).                   
