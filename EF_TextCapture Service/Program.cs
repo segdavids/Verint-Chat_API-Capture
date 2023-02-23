@@ -90,7 +90,7 @@ namespace EF_TextCapture_Service
                     //var getconvorequest = new RestSharp.RestRequest(getconvourl, RestSharp.Method.GET);
                     //var hcconversationresponse = gethcconversations.Execute(getconvorequest);
                     //var statcode = hcconversationresponse;               
-                        if (poster.Count > 0)
+                    if (poster.Count > 0)
                         {                      
                          action = "Conversations Fetched successfully";
                             logerror(action);
@@ -219,58 +219,18 @@ namespace EF_TextCapture_Service
                                         ObjClass.utterances = UtteranceList;
                                     }
 
-                                    //======================================
-                                    //SFTP PART
-                                    //======================================
-
-                                    //DELETE ANY EXISTING FILE IN THE FOLDER
-                                    System.IO.DirectoryInfo di = new DirectoryInfo(@"C:\inetpub\wwwroot\Temp\");
-                                    foreach (FileInfo file in di.EnumerateFiles())
-                                    {
-                                        file.Delete();
-                                    }
-                                    //CREATE A FILE OUT OF THE OBJECT BEFORE SENDING TO SFTP
+                                //=====================================
+                                //SAVE SFTP FILE
+                                //=====================================
+                                //CREATE A FILE OUT OF THE OBJECT BEFORE SENDING TO SFTP
                                     Library.logerror("Creating JSon file - SFTP Transfer for Conversation_Id: " + convid + "");
-                                    using (StreamWriter file = File.CreateText(@"C:\inetpub\wwwroot\temp\" + convid +  ".json"))
-                                    {
-                                        JsonSerializer serializer = new JsonSerializer();
-                                        //serialize object directly into file stream
-                                        serializer.Serialize(file, ObjClass);
-                                    }
-                                    //PUSHING TO SFTP FOLDER
-                                    var privateKey = new PrivateKeyFile(@"C:\EF\sFTP\expertflow_key.ppk");// USING PUBLIC KEY
+                                    using (StreamWriter file = File.CreateText(@"C:\inetpub\wwwroot\temp\" + convid + ".json"))
+                                {
+                                    JsonSerializer writefile = new JsonSerializer();
+                                    writefile.Serialize(file,ObjClass);
                                     Library.logerror("json created successfully, now sending file to sftp client for conversation_id: " + convid + "");
-                                    using (var sftpclient = new SftpClient(host, port, username, new[] { privateKey }))
-                                    {
-                                        string uploadfile = @"c:\inetpub\wwwroot\temp\" + convid + ".json";
-                                        sftpclient.Connect();
-                                        if (sftpclient.IsConnected)
-                                        {
-                                            Library.logerror("connected to sftp: " + convid + "");
-                                            using (var filestream = new FileStream(uploadfile, FileMode.Open))
-                                            {
-                                                sftpclient.BufferSize = 4 * 1024; // bypass payload error large files
-                                                sftpclient.UploadFile(filestream, Path.GetFileName(uploadfile));
-                                            }
-                                            Library.logerror("file sent to sftp: " + convid + "");
-                                            totalchatssenttoftp = totalchatssenttoftp+1;
-                                            Library.logerror(totalchatssenttoftp + " conversation files sent to SFTP");
-                                        if (File.Exists(uploadfile))
-                                            {
-                                                // if file found, delete it    
-                                                File.Delete(uploadfile);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            Library.logerror("connection to sftp server failed, trying again..: " + convid + "");
-                                        }
-                                    }
-                                    //DELETING ANY REMNANT FILE IN TEMP FOLDER FOR JSON UPLOAD
-                                    foreach (FileInfo file in di.EnumerateFiles())
-                                    {
-                                        file.Delete();
-                                    }
+                                }
+                                    
                                     //===============================================================================================================
                                     //VERINT INGESTION PART
                                     //===============================================================================================================
@@ -351,14 +311,60 @@ namespace EF_TextCapture_Service
                                     Library.logerror("Error fetcghing messages for Conversation_Id: " + convid + " " + GetMessageStatcode + "");
                                 }
                             }
+
+                        //======================================
+                        //SENDING BULK JSON FILES TO SFTP PART
+                        //======================================
+
+
+
+                        //PUSHING TO SFTP FOLDER
+                        System.IO.DirectoryInfo di = new DirectoryInfo(@"C:\inetpub\wwwroot\Temp\");
+                        var privateKey = new PrivateKeyFile(@"C:\EF\sFTP\expertflow_key.ppk");// USING PUBLIC KEY
+                        
+                        using (var sftpclient = new SftpClient(host, port, username, new[] { privateKey }))
+                        {
+                            sftpclient.Connect();
+                            if (sftpclient.IsConnected)
+                            {
+                                Library.logerror("connected to sftp to transfer batch files");
+                                foreach (FileInfo file in di.EnumerateFiles())
+                                {
+                                    string uploadfile = file.FullName;//@"c:\inetpub\wwwroot\temp\" + convid + ".json";
+
+                                    using (var filestream = new FileStream(uploadfile, FileMode.Open))
+                                    {
+                                        sftpclient.BufferSize = 4 * 1024; // bypass payload error large files
+                                        sftpclient.UploadFile(filestream, Path.GetFileName(uploadfile));
+                                    }
+                                    Library.logerror("file sent to sftp: " + Path.GetFileName(uploadfile) + "");
+                                    totalchatssenttoftp = totalchatssenttoftp + 1;
+                                    Library.logerror(totalchatssenttoftp + " conversation files sent to SFTP");
+                                    //if (File.Exists(uploadfile))
+                                    //{
+                                    //    // if file found, delete it    
+                                    //    File.Delete(uploadfile);
+                                    //}
+                                }
+                            }
+                            else
+                            {
+                                Library.logerror("connection to sftp server failed");
+                            }
+                        }
+                        //DELETING ANY REMNANT FILE IN TEMP FOLDER FOR JSON UPLOAD
+                        //foreach (FileInfo file in di.EnumerateFiles())
+                        //{
+                        //    file.Delete();
+                        //}
                         Library.logerror("Total Conversations Found: "+ totalconvcount + "");
                         Library.logerror("Total Conversations files sent to SFTP: " + totalchatssenttoftp + "");
                     }
-                        else
-                        {
-                            string errormessage = "Conversations could not be Fetched from EF Hybrid Chat";
-                            logerror(errormessage);
-                        }                
+                    else
+                    {
+                        string errormessage = "Conversations could not be Fetched from EF Hybrid Chat";
+                        logerror(errormessage);
+                    }
                 }
                 else
                 {
