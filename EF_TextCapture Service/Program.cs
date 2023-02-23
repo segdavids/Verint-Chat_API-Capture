@@ -340,11 +340,11 @@ namespace EF_TextCapture_Service
                                     Library.logerror("file sent to sftp: " + Path.GetFileName(uploadfile) + "");
                                     totalchatssenttoftp = totalchatssenttoftp + 1;
                                     Library.logerror(totalchatssenttoftp + " conversation files sent to SFTP");
-                                    //if (File.Exists(uploadfile))
-                                    //{
-                                    //    // if file found, delete it    
-                                    //    File.Delete(uploadfile);
-                                    //}
+                                    if (File.Exists(uploadfile))
+                                    {
+                                        // if file found, delete it    
+                                        File.Delete(uploadfile);
+                                    }
                                 }
                             }
                             else
@@ -353,10 +353,11 @@ namespace EF_TextCapture_Service
                             }
                         }
                         //DELETING ANY REMNANT FILE IN TEMP FOLDER FOR JSON UPLOAD
-                        //foreach (FileInfo file in di.EnumerateFiles())
-                        //{
-                        //    file.Delete();
-                        //}
+                        foreach (FileInfo file in di.EnumerateFiles())
+                        {
+                            file.Delete();
+                        }
+                        Library.logerror("SFTP transfer complete");
                         Library.logerror("Total Conversations Found: "+ totalconvcount + "");
                         Library.logerror("Total Conversations files sent to SFTP: " + totalchatssenttoftp + "");
                     }
