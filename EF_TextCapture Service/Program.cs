@@ -316,8 +316,6 @@ namespace EF_TextCapture_Service
                         //SENDING BULK JSON FILES TO SFTP PART
                         //======================================
 
-
-
                         //PUSHING TO SFTP FOLDER
                         System.IO.DirectoryInfo di = new DirectoryInfo(@"C:\inetpub\wwwroot\Temp\");
                         var privateKey = new PrivateKeyFile(@"C:\EF\sFTP\expertflow_key.ppk");// USING PUBLIC KEY

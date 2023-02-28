@@ -34,7 +34,7 @@ namespace _15Mins_Service
             conn.Open();
             DateTime datenow = DateTime.Now; //.ToString("yyy-MM-dd HH:mm");
             string finaldate = string.Empty;
-            if((datenow.Hour.ToString()=="00") && (datenow.Minute.ToString()=="00"))
+            if((datenow.Hour.ToString()=="0") && (datenow.Minute.ToString()=="0"))
             {
                 datenow = datenow.AddDays(-1);                
             }
