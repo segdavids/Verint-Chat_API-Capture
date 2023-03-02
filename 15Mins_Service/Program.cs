@@ -62,7 +62,7 @@ cast(cast((ISNULL((slaanswered* 1.0 / NULLIF(totatchats, 0)) *100,0))as decimal(
  Select(CONVERT(VARCHAR(5), (CAST(@gdate as datetime) - @reportstartime), 108)) + '-' + (CONVERT(VARCHAR(5), (CAST(@gdate as datetime)), 108)) as TimeInterval,
 qd.queue_id as Queue,
  q.service_level_type as sltype,
-Convert(Varchar,CAst(@gdate as Date),101) as ReportDate, 
+Convert(Varchar,CAst(@datetime as Date),101) as ReportDate, 
 CONVERT(VARCHAR(5), (CAST(@gdate as datetime)), 108) as Report_Time, 
 CONVERT(VARCHAR(5), (CAST(@gdate as datetime)), 108) + '-' + CONVERT(VARCHAR(5), (CAST(@gdate as datetime) - @reportstartime), 108) as Time_Interval,
 count(distinct(qd.conversation_id)) as totatchats, 
