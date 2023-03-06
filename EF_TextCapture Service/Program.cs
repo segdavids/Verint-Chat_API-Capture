@@ -207,8 +207,8 @@ namespace EF_TextCapture_Service
                                         utteranceinst.startTime = message.timestamp;
                                         utteranceinst.startTime = message.timestamp;
                                         utteranceinst.type = message.messageType;
-                                        utteranceinst.value = message.text == null ? "Activity message" : System.Web.HttpUtility.UrlDecode(message.text);
-                                        utteranceinst.raw_value = message.text == null ? "Activity message" : System.Web.HttpUtility.UrlDecode(message.text);
+                                        utteranceinst.value = message.text == null ? "" : System.Web.HttpUtility.UrlDecode(message.text);
+                                        utteranceinst.raw_value = message.text == null ? "" : System.Web.HttpUtility.UrlDecode(message.text);
                                         // PUSH NEW ITEM INTO LIST
                                         UtteranceList.Add(utteranceinst);
 
