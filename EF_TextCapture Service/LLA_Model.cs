@@ -15,7 +15,7 @@ namespace EF_TextCapture_Service
             public string type { get; set; }
             public string sourceType { get; set; }
             public string project { get; set; }
-            public string channel { get; set; }
+           // public string channel { get; set; }
             public DateTime startTime { get; set; }
             public DateTime endTime { get; set; }
             public string subject { get; set; }

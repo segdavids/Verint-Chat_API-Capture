@@ -150,6 +150,7 @@ namespace EF_TextCapture_Service
                                     ObjClass.parentId = convid;
                                     foreach (var message in messageObj)
                                     {
+                                  
                                         LLA_Model.Actor actorsids = new LLA_Model.Actor();
                                         actorsids.id = message.from.id.ToLower();
                                         bool containsItem = ActorList.Any(item => item.id == actorsids.id);
@@ -185,8 +186,10 @@ namespace EF_TextCapture_Service
                                             //CONFIRM IF THE ACTOR DOES NOT ALREADY EXIST IN THE LIST OF ACTORS AND PUSH NEW ITEM INTO LIST
                                             ActorList.Add(actorsids);
                                         }
-                                        //SETTING THE DYNAMIC PART OF UTTERANCE CLASS INSTANCE
-                                        //CREATE NEW UTTERANCE SUBCLASS
+                                    //SETTING THE DYNAMIC PART OF UTTERANCE CLASS INSTANCE
+                                    //CREATE NEW UTTERANCE SUBCLASS
+                                    if (message.messageType != "ActivityMessage")
+                                    {
                                         LLA_Model.Utterance utteranceinst = new LLA_Model.Utterance();
                                         if (message.to.Count == 0)
                                         {
@@ -203,7 +206,7 @@ namespace EF_TextCapture_Service
                                         }
                                         utteranceinst.language = "en-us";
                                         utteranceinst.actor = message.from.id.ToLower().ToLower();
-                                        utteranceinst.to = To.Count == 0 ? forempty : To; 
+                                        utteranceinst.to = To.Count == 0 ? forempty : To;
                                         utteranceinst.startTime = message.timestamp;
                                         utteranceinst.startTime = message.timestamp;
                                         utteranceinst.type = message.messageType;
@@ -211,7 +214,7 @@ namespace EF_TextCapture_Service
                                         utteranceinst.raw_value = message.text == null ? "" : System.Web.HttpUtility.UrlDecode(message.text);
                                         // PUSH NEW ITEM INTO LIST
                                         UtteranceList.Add(utteranceinst);
-
+                                    }
                                         //SETTING THE DYNAMIC PART OF ROOT CLASS INSTANCE
                                         ObjClass.type = "EF-HybridChat" + message.messageType;
                                         ObjClass.actors = ActorList;
@@ -248,7 +251,7 @@ namespace EF_TextCapture_Service
 
                                         var client = new RestSharp.RestClient(LLA_url);
                                         var request = new RestSharp.RestRequest("" + LLA_url + "", RestSharp.Method.POST);
-                                        client.UseVwtAuthentication(keyId, keyStr);
+                                        //client.UseVwtAuthentication(keyId, keyStr);
                                         request.RequestFormat = RestSharp.DataFormat.Json;
                                         request.AddJsonBody(ObjClass);
                                         var response = client.Execute(request);
