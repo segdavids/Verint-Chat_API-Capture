@@ -251,7 +251,7 @@ namespace EF_TextCapture_Service
 
                                         var client = new RestSharp.RestClient(LLA_url);
                                         var request = new RestSharp.RestRequest("" + LLA_url + "", RestSharp.Method.POST);
-                                        //client.UseVwtAuthentication(keyId, keyStr);
+                                        client.UseVwtAuthentication(keyId, keyStr);
                                         request.RequestFormat = RestSharp.DataFormat.Json;
                                         request.AddJsonBody(ObjClass);
                                         var response = client.Execute(request);
