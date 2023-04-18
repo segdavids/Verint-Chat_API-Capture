@@ -148,44 +148,47 @@ namespace EF_TextCapture_Service
                                     ObjClass.threadId = looper.taskId;
                                     ObjClass.datasource = "Text";
                                     ObjClass.parentId = convid;
-                                    foreach (var message in messageObj)
+                                foreach (var messageitem in messageObj)
+                                {
+                                    LLA_Model.Actor actorsids = new LLA_Model.Actor();
+                                    actorsids.id = messageitem.from.id.ToLower();
+                                    bool containsItem = ActorList.Any(item => item.id == actorsids.id);
+                                    if (containsItem == false)
                                     {
-                                  
-                                        LLA_Model.Actor actorsids = new LLA_Model.Actor();
-                                        actorsids.id = message.from.id.ToLower();
-                                        bool containsItem = ActorList.Any(item => item.id == actorsids.id);
-                                        if (containsItem == false)
+                                        actorsids.id = messageitem.from.id.ToLower();
+                                        actorsids.email = "";
+                                        actorsids.accountId = messageitem.from.id.ToLower();
+                                        string finalrole;
+                                        switch (messageitem.from.type.ToLower())
                                         {
-                                            actorsids.id = message.from.id.ToLower();
-                                            actorsids.email = "";
-                                            actorsids.accountId = message.from.id.ToLower();
-                                            string finalrole;
-                                            switch (message.from.type.ToLower())
-                                            {
-                                                case "bot":
-                                                    finalrole = "info";
-                                                    break;
-                                                case "customer":
-                                                    finalrole = "visitor";
-                                                    break;
-                                                case "agent":
-                                                    finalrole = "agent";
-                                                    break;
-                                                case "supervisor":
-                                                    finalrole = "agent";
-                                                    break;
-                                                default:
-                                                    finalrole = "";
-                                                    break;
-                                            }
-                                            actorsids.role = finalrole;
-                                            actorsids.displayName = HttpUtility.UrlDecode(message.from.name);
-                                            actorsids.timezone = "";
-                                            actorsids.enterTime = message.timestamp;
-                                            actorsids.leaveTime = message.updatedAt;
-                                            //CONFIRM IF THE ACTOR DOES NOT ALREADY EXIST IN THE LIST OF ACTORS AND PUSH NEW ITEM INTO LIST
-                                            ActorList.Add(actorsids);
+                                            case "bot":
+                                                finalrole = "info";
+                                                break;
+                                            case "customer":
+                                                finalrole = "visitor";
+                                                break;
+                                            case "agent":
+                                                finalrole = "agent";
+                                                break;
+                                            case "supervisor":
+                                                finalrole = "agent";
+                                                break;
+                                            default:
+                                                finalrole = "";
+                                                break;
                                         }
+                                        actorsids.role = finalrole;
+                                        actorsids.displayName = HttpUtility.UrlDecode(messageitem.from.name);
+                                        actorsids.timezone = "";
+                                        actorsids.enterTime = messageitem.timestamp;
+                                        actorsids.leaveTime = messageitem.updatedAt;
+                                        //CONFIRM IF THE ACTOR DOES NOT ALREADY EXIST IN THE LIST OF ACTORS AND PUSH NEW ITEM INTO LIST
+                                        ActorList.Add(actorsids);
+                                    }
+                                }
+                                foreach (var message in messageObj)
+                                    {
+                                    
                                     //SETTING THE DYNAMIC PART OF UTTERANCE CLASS INSTANCE
                                     //CREATE NEW UTTERANCE SUBCLASS
                                     if (message.messageType != "ActivityMessage")
@@ -193,7 +196,7 @@ namespace EF_TextCapture_Service
                                         LLA_Model.Utterance utteranceinst = new LLA_Model.Utterance();
                                         if (message.to.Count == 0)
                                         {
-                                            forempty = ActorList.Where(f => f.role.ToLower() == "agent").Select(n => n.id).ToList();
+                                            forempty = ActorList.Where(f => f.id!= message.from.id).Select(n => n.id).ToList();
                                         }
                                         else
                                         {
@@ -205,7 +208,7 @@ namespace EF_TextCapture_Service
                                             }
                                         }
                                         utteranceinst.language = "en-us";
-                                        utteranceinst.actor = message.from.id.ToLower().ToLower();
+                                        utteranceinst.actor = message.from.id.ToLower();
                                         utteranceinst.to = To.Count == 0 ? forempty : To;
                                         utteranceinst.startTime = message.timestamp;
                                         utteranceinst.startTime = message.timestamp;
