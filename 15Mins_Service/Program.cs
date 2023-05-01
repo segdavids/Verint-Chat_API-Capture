@@ -25,7 +25,7 @@ namespace _15Mins_Service
             DataTable pathdt = GetWFM(Query);
             reportfolder = pathdt.Rows[0]["Path"].ToString();
 
-            string FileNamePart = DateTime.Now.ToString("yyyyMMddHHmm"); ;//Datetime will be added to it
+            string FileNamePart = DateTime.Now.AddMinutes(-5).ToString("yyyyMMddHHmm"); ;//Datetime will be added to it
             string DestinationFolder = reportfolder; // @"K:\EF_RAW_DATA\";
             string FileDelimiter = "\t"; //You can provide comma or pipe or whatever you like
             string FileExtension = ".txt"; //Provide the extension you like such as .txt or .csv
@@ -45,7 +45,7 @@ namespace _15Mins_Service
             string q = @"BEGIN DECLARE @gdate DATETIME, @datetime DATETIME, @reportstartime datetime, @service_level_threshold int
 
 BEGIN
-        SELECT @gdate = convert(varchar(16), getdate(), 21)
+        SELECT @gdate = convert(varchar(16), getdate(), 21) - CAST('00:05' AS datetime)
 
     select @reportstartime = CAST('00:15' AS datetime)
 
