@@ -169,8 +169,8 @@ group by B1.ReportDate
             else
             {
                 string reportdate = DateTime.Now.ToString("MM/dd/yyyy");
-                string totime =  DateTime.Now.ToString("HH:mm"); ;// DateTime.ParseExact(fromtime, "HH:mm",
-                string fromtime = DateTime.Now.AddMinutes(-60).ToString("HH:mm");
+                string totime =  DateTime.Now.AddMinutes(-60).ToString("HH:mm"); ;// DateTime.ParseExact(fromtime, "HH:mm",
+                string fromtime = DateTime.Now.AddMinutes(-75).ToString("HH:mm");
              
                 string timeinterval = fromtime + "-" + totime;
                 string queue = "3008";
