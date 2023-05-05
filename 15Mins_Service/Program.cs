@@ -25,7 +25,7 @@ namespace _15Mins_Service
             DataTable pathdt = GetWFM(Query);
             reportfolder = pathdt.Rows[0]["Path"].ToString();
 
-            string FileNamePart = DateTime.Now.AddMinutes(-5).ToString("yyyyMMddHHmm"); ;//Datetime will be added to it
+            string FileNamePart = DateTime.Now.AddHours(-1).ToString("yyyyMMddHHmm"); ;//Datetime will be added to it
             string DestinationFolder = reportfolder; // @"K:\EF_RAW_DATA\";
             string FileDelimiter = "\t"; //You can provide comma or pipe or whatever you like
             string FileExtension = ".txt"; //Provide the extension you like such as .txt or .csv
@@ -45,7 +45,7 @@ namespace _15Mins_Service
             string q = @"BEGIN DECLARE @gdate DATETIME, @datetime DATETIME, @reportstartime datetime, @service_level_threshold int
 
 BEGIN
-        SELECT @gdate = convert(varchar(16), getdate(), 21) - CAST('00:05' AS datetime)
+        SELECT @gdate = convert(varchar(16), getdate(), 21) - CAST('01:00' AS datetime)
 
     select @reportstartime = CAST('00:15' AS datetime)
 
@@ -55,7 +55,7 @@ BEGIN
 	
 SELECT t.ReportDate, TimeInterval, Queue, totatchats as Chats, Replied as Replied,
 cast(cast((ISNULL((slaanswered* 1.0 / NULLIF(totatchats, 0)) *100,0))as decimal(5, 2))as float)
- AS SL, ISNULL((WaitTime / NULLIF(Replied,0)), 0)	 as ASA, ISNULL((ChatDuration / NULLIF(Replied,0)), 0) AS AHT, ISNULL(agentno,0) as staff, Abd as Abd
+ AS SL, ISNULL((WaitTime / NULLIF(Replied,0)), 0)	 as ASA, ISNULL((ChatDuration / NULLIF(Replied,0)), 0) AS AHT, staff as staff, Abd as Abd
  FROM
  (
 
@@ -76,7 +76,7 @@ count(distinct(qd.agent_id)) as staff,
 from[EFHybridchat].[dbo].[Queue_Chat_Details] as qd
  INNER JOIN[EFHybridchat].[dbo].[Queues] as q
  ON qd.queue_id = q.queue_id
-where qd.session_start_time between @datetime and @gdate and conversation_id not in (select subq.conversation_id from[EFHybridchat].[dbo].[Queue_Chat_Details] as subq where subq.session_start_time between @datetime and @gdate and subq.ended_by in ('RONA'))
+where qd.session_start_time between @datetime and @gdate and conversation_id not in (select subq.conversation_id from[EFHybridchat].[dbo].[Queue_Chat_Details] as subq where subq.session_start_time between @datetime and @gdate and subq.ended_by in ('RONA')) and qd.ended_by is not null
 GROUP BY  qd.queue_id,q.service_level_type
 ) t
 left join (SELECT   COUNT(DISTINCT B1.agent_id) AS agentno,B1.ReportDate
@@ -170,7 +170,7 @@ group by B1.ReportDate
             {
                 string reportdate = DateTime.Now.ToString("MM/dd/yyyy");
                 string totime =  DateTime.Now.ToString("HH:mm"); ;// DateTime.ParseExact(fromtime, "HH:mm",
-                string fromtime = DateTime.Now.AddMinutes(-15).ToString("HH:mm");
+                string fromtime = DateTime.Now.AddMinutes(-60).ToString("HH:mm");
              
                 string timeinterval = fromtime + "-" + totime;
                 string queue = "3008";

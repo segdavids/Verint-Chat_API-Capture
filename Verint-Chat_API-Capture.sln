@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "15Mins_Service", "15Mins_Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClrTemp", "ClrTemp\ClrTemp.csproj", "{5E4A78AB-7B5F-4534-93A6-17468B048D53}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DailyWFM", "DailyWFM\DailyWFM.csproj", "{45CD5E97-F4FC-456A-933D-C47C4C51B5FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{5E4A78AB-7B5F-4534-93A6-17468B048D53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E4A78AB-7B5F-4534-93A6-17468B048D53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E4A78AB-7B5F-4534-93A6-17468B048D53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45CD5E97-F4FC-456A-933D-C47C4C51B5FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45CD5E97-F4FC-456A-933D-C47C4C51B5FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45CD5E97-F4FC-456A-933D-C47C4C51B5FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45CD5E97-F4FC-456A-933D-C47C4C51B5FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
