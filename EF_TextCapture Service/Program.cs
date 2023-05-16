@@ -181,7 +181,7 @@ namespace EF_TextCapture_Service
                                         actorsids.displayName = HttpUtility.UrlDecode(messageitem.from.name);
                                         actorsids.timezone = "";
                                         actorsids.enterTime = messageitem.timestamp;
-                                        actorsids.leaveTime = messageitem.updatedAt;
+                                        actorsids.leaveTime = ObjClass.endTime;
                                         //CONFIRM IF THE ACTOR DOES NOT ALREADY EXIST IN THE LIST OF ACTORS AND PUSH NEW ITEM INTO LIST
                                         ActorList.Add(actorsids);
                                     }
@@ -210,7 +210,6 @@ namespace EF_TextCapture_Service
                                         utteranceinst.language = "en-us";
                                         utteranceinst.actor = message.from.id.ToLower();
                                         utteranceinst.to = To.Count == 0 ? forempty : To;
-                                        utteranceinst.startTime = message.timestamp;
                                         utteranceinst.startTime = message.timestamp;
                                         utteranceinst.type = message.messageType;
                                         utteranceinst.value = message.text == null ? "" : System.Web.HttpUtility.UrlDecode(message.text);
