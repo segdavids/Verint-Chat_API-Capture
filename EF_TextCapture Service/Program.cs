@@ -60,8 +60,8 @@ namespace EF_TextCapture_Service
             try
             {
                 //string currtime = DateTime.Now.ToString("yyyy-MM-dd");
-                string yeststarttime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd") + "T00:00:00.000+11:00";
-                string yestendtime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd") + "T23:59:59.999+11:00";
+                string yeststarttime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd") + "T00:00:00.000+10:00";
+                string yestendtime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd") + "T23:59:59.999+10:00";
                 DateTime finalstarttime = Convert.ToDateTime(yeststarttime);
                 DateTime finalendtime = Convert.ToDateTime(yestendtime);
                 var starttime = DateTime.SpecifyKind(finalstarttime, DateTimeKind.Utc);// DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
