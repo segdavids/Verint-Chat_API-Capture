@@ -60,8 +60,8 @@ namespace EF_TextCapture_Service
             try
             {
                 //string currtime = DateTime.Now.ToString("yyyy-MM-dd");
-                string yeststarttime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd") + "T00:00:00.000+10:00";
-                string yestendtime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd") + "T23:59:59.999+10:00";
+                string yeststarttime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd") + "T00:00:00";
+                string yestendtime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd") + "T23:59:59";
                 DateTime finalstarttime = Convert.ToDateTime(yeststarttime);
                 DateTime finalendtime = Convert.ToDateTime(yestendtime);
                 var starttime = DateTime.SpecifyKind(finalstarttime, DateTimeKind.Utc);// DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
@@ -141,9 +141,9 @@ namespace EF_TextCapture_Service
                                     ObjClass.language = "en-us";
                                     ObjClass.sourceType = "Chat";
                                     ObjClass.project = "LifeLine Customer Contact Solution";
-                                    ObjClass.startTime = looper.startTime;
-                                    ObjClass.endTime = looper.updatedAt;
-                                    ObjClass.subject = "";
+                                    ObjClass.startTime = looper.startTime.AddHours(-10);
+                                    ObjClass.endTime = looper.updatedAt.AddHours(-10);
+                                ObjClass.subject = "";
                                     ObjClass.direction = 2;
                                     ObjClass.threadId = looper.taskId;
                                     ObjClass.datasource = "Text";
@@ -179,8 +179,8 @@ namespace EF_TextCapture_Service
                                         }
                                         actorsids.role = finalrole;
                                         actorsids.displayName = HttpUtility.UrlDecode(messageitem.from.name);
-                                        actorsids.timezone = "";
-                                        actorsids.enterTime = messageitem.timestamp;
+                                        actorsids.timezone = "+10:00";
+                                        actorsids.enterTime = messageitem.timestamp.AddHours(-10);
                                         actorsids.leaveTime = ObjClass.endTime;
                                         //CONFIRM IF THE ACTOR DOES NOT ALREADY EXIST IN THE LIST OF ACTORS AND PUSH NEW ITEM INTO LIST
                                         ActorList.Add(actorsids);
@@ -210,7 +210,7 @@ namespace EF_TextCapture_Service
                                         utteranceinst.language = "en-us";
                                         utteranceinst.actor = message.from.id.ToLower();
                                         utteranceinst.to = To.Count == 0 ? forempty : To;
-                                        utteranceinst.startTime = message.timestamp;
+                                        utteranceinst.startTime = message.timestamp.AddHours(-10);
                                         utteranceinst.type = message.messageType;
                                         utteranceinst.value = message.text == null ? "" : System.Web.HttpUtility.UrlDecode(message.text);
                                         utteranceinst.raw_value = message.text == null ? "" : System.Web.HttpUtility.UrlDecode(message.text);
