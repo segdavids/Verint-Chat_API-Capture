@@ -141,9 +141,9 @@ namespace EF_TextCapture_Service
                                     ObjClass.language = "en-us";
                                     ObjClass.sourceType = "Chat";
                                     ObjClass.project = "LifeLine Customer Contact Solution";
-                                    ObjClass.startTime = looper.startTime.AddHours(-10);
-                                    ObjClass.endTime = looper.updatedAt.AddHours(-10);
-                                ObjClass.subject = "";
+                                    ObjClass.startTime = looper.startTime;//.AddHours(-10);
+                                    ObjClass.endTime = looper.updatedAt;//.AddHours(-10);
+                                    ObjClass.subject = "";
                                     ObjClass.direction = 2;
                                     ObjClass.threadId = looper.taskId;
                                     ObjClass.datasource = "Text";
@@ -180,7 +180,7 @@ namespace EF_TextCapture_Service
                                         actorsids.role = finalrole;
                                         actorsids.displayName = HttpUtility.UrlDecode(messageitem.from.name);
                                         actorsids.timezone = "+10:00";
-                                        actorsids.enterTime = messageitem.timestamp.AddHours(-10);
+                                        actorsids.enterTime = messageitem.timestamp;//.AddHours(-10);
                                         actorsids.leaveTime = ObjClass.endTime;
                                         //CONFIRM IF THE ACTOR DOES NOT ALREADY EXIST IN THE LIST OF ACTORS AND PUSH NEW ITEM INTO LIST
                                         ActorList.Add(actorsids);
@@ -210,7 +210,7 @@ namespace EF_TextCapture_Service
                                         utteranceinst.language = "en-us";
                                         utteranceinst.actor = message.from.id.ToLower();
                                         utteranceinst.to = To.Count == 0 ? forempty : To;
-                                        utteranceinst.startTime = message.timestamp.AddHours(-10);
+                                        utteranceinst.startTime = message.timestamp;
                                         utteranceinst.type = message.messageType;
                                         utteranceinst.value = message.text == null ? "" : System.Web.HttpUtility.UrlDecode(message.text);
                                         utteranceinst.raw_value = message.text == null ? "" : System.Web.HttpUtility.UrlDecode(message.text);
@@ -245,8 +245,20 @@ namespace EF_TextCapture_Service
                                     //NOW CALLING NTT API TO PUSH THE CHAT TRANSCRIPTS
                                     if (agenstexist == true)
                                     {
-                                        //AGENT EXISTS, NOW CALLING VERINT API TO PUSH THE CHAT TRANSCRIPTS
-                                       string LLA_url = "https://sydpvertxr01.iptel.lifeline.org.au/api/recording/textcapture/v1/ingestion";
+                                        ObjClass.startTime = looper.startTime.AddHours(-10);
+                                        ObjClass.endTime = looper.updatedAt.AddHours(-10);
+
+                                        foreach(var actorsids in ActorList)
+                                    {
+                                        actorsids.enterTime = actorsids.enterTime.AddHours(-10);
+                                        actorsids.leaveTime = actorsids.leaveTime.AddHours(-10);
+                                    }
+                                    foreach (var utterance in UtteranceList)
+                                    {
+                                        utterance.startTime = utterance.startTime.AddHours(-10);
+                                    }
+                                    //AGENT EXISTS, NOW CALLING VERINT API TO PUSH THE CHAT TRANSCRIPTS
+                                    string LLA_url = "https://sydpvertxr01.iptel.lifeline.org.au/api/recording/textcapture/v1/ingestion";
                                         string test = "ed067050bbc1a63b285e970cf551dce5";
                                         var keyId = "hmm11D1C";
                                         var keyStr = "nCYUvKyXqoc6dEboQCdmO8B94jVY8ySZrVBJWZLRS1s";
@@ -334,7 +346,6 @@ namespace EF_TextCapture_Service
                                 foreach (FileInfo file in di.EnumerateFiles())
                                 {
                                     string uploadfile = file.FullName;//@"c:\inetpub\wwwroot\temp\" + convid + ".json";
-
                                     using (var filestream = new FileStream(uploadfile, FileMode.Open))
                                     {
                                         sftpclient.BufferSize = 4 * 1024; // bypass payload error large files
