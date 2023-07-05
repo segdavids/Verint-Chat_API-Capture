@@ -413,7 +413,7 @@ namespace EF_TextCapture_Service
         {
             StreamWriter custommessage = null;
             string logpath= @"C:\EF\Text Capture\" + DateTime.Now.ToString("yyyy_MM_dd")+ "_Log.txt";
-            custommessage = new StreamWriter(@"C:\EF\Text Capture\CustomLog.txt", true);
+            custommessage = new StreamWriter(logpath, true);
             custommessage.WriteLine(DateTime.Now.ToString() + ":" + messageex);
             custommessage.Flush();
             custommessage.Close();
