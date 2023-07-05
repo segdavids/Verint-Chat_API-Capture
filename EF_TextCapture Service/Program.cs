@@ -399,8 +399,9 @@ namespace EF_TextCapture_Service
             StreamWriter loggerman = null;
             try
             {
-                // loggerman = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "\\Log.txt", true);
-                loggerman = new StreamWriter(@"C:\Text Capture\Log.txt", true);
+                string logpath = @"C:\EF\Text Capture\Logs\" + DateTime.Now.ToString("yyyy_MM_dd") + "_Log.txt";
+                loggerman = new StreamWriter(logpath, true);
+                //loggerman = new StreamWriter(@"C:\Text Capture\Log.txt", true);
                 loggerman.WriteLine(DateTime.Now.ToString() + ":" + e.Source.ToString().Trim() + ";" + e.Message.ToString().Trim());
                 loggerman.Flush();
                 loggerman.Close();
@@ -412,7 +413,7 @@ namespace EF_TextCapture_Service
         public static void logerror(string messageex)
         {
             StreamWriter custommessage = null;
-            string logpath= @"C:\EF\Text Capture\" + DateTime.Now.ToString("yyyy_MM_dd")+ "_Log.txt";
+            string logpath = @"C:\EF\Text Capture\Logs\" + DateTime.Now.ToString("yyyy_MM_dd") + "_Log.txt";
             custommessage = new StreamWriter(logpath, true);
             custommessage.WriteLine(DateTime.Now.ToString() + ":" + messageex);
             custommessage.Flush();

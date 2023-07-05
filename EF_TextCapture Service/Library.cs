@@ -95,8 +95,8 @@ namespace EF_TextCapture_Service
         public static void logerror(string messageex)
         {
             StreamWriter custommessage = null;
-            //custommessage = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "\\CustomLog.txt", true);
-            custommessage = new StreamWriter(@"C:\EF\Text Capture\CustomLog.txt", true);
+            string logpath = @"C:\EF\Text Capture\Logs\" + DateTime.Now.ToString("yyyy_MM_dd") + "_Log.txt";
+            custommessage = new StreamWriter(logpath, true);
             custommessage.WriteLine(DateTime.Now.ToString() + ":" + messageex);
             custommessage.Flush();
             custommessage.Close();
