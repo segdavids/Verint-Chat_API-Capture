@@ -38,15 +38,15 @@ namespace EF_TextCapture_Service
             int port = 0;
             //GET PASSWORD
             string get = $"select * from sftp";
-            DataTable dt = Library.GetRequest(get);
-            if (dt.Rows.Count > 0)
-            {
-                string temppw = String.IsNullOrEmpty(dt.Rows[0]["password"].ToString()) ? "" : dt.Rows[0]["password"].ToString();
-                password = temppw;// Library.decryptpass(temppw);
-                username = String.IsNullOrEmpty(dt.Rows[0]["username"].ToString()) ? "" : dt.Rows[0]["username"].ToString();
-                host = String.IsNullOrEmpty(dt.Rows[0]["host"].ToString()) ? "" : dt.Rows[0]["host"].ToString();
-                port = Convert.ToInt32(String.IsNullOrEmpty(dt.Rows[0]["port"].ToString()) ? "0" : dt.Rows[0]["port"].ToString());
-            }
+            //DataTable dt = Library.GetRequest(get);
+            //if (dt.Rows.Count > 0)
+            //{
+            //    string temppw = String.IsNullOrEmpty(dt.Rows[0]["password"].ToString()) ? "" : dt.Rows[0]["password"].ToString();
+            //    password = temppw;// Library.decryptpass(temppw);
+            //    username = String.IsNullOrEmpty(dt.Rows[0]["username"].ToString()) ? "" : dt.Rows[0]["username"].ToString();
+            //    host = String.IsNullOrEmpty(dt.Rows[0]["host"].ToString()) ? "" : dt.Rows[0]["host"].ToString();
+            //    port = Convert.ToInt32(String.IsNullOrEmpty(dt.Rows[0]["port"].ToString()) ? "0" : dt.Rows[0]["port"].ToString());
+            //}
 
 
             SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["VerintDB"].ConnectionString);
@@ -59,13 +59,16 @@ namespace EF_TextCapture_Service
 
             try
             {
-                var currtime = DateTime.Now;
-                var startdatetimeraw = currtime.AddHours(-34);
-                var enddatetimeraw = currtime.AddHours(-11);
+                var currtime = DateTime.Now.ToUniversalTime();
+                //var startdatetimeraw = currtime.AddHours(-34);
+                var startdatetimeraw = currtime.AddDays(-2); //.AddHours(-34);
+                //var enddatetimeraw = currtime.AddHours(-11);
                 var starttimenmin = startdatetimeraw.ToString("HH");
-                var endtimemin = enddatetimeraw.ToString("HH");
-                string yeststarttime = startdatetimeraw.ToString("yyyy-MM-dd") + $"T{starttimenmin}:00:00";
-                string yestendtime = enddatetimeraw.ToString("yyyy-MM-dd") + $"T{endtimemin}:59:59";
+                //var endtimemin = enddatetimeraw.ToString("HH");
+                //string yeststarttime = startdatetimeraw.ToString("yyyy-MM-dd") + $"T{starttimenmin}:00:00";
+                string yeststarttime = startdatetimeraw.ToString("yyyy-MM-dd") + $"T00:00:00";
+                //string yestendtime = enddatetimeraw.ToString("yyyy-MM-dd") + $"T{endtimemin}:59:59";
+                string yestendtime = startdatetimeraw.ToString("yyyy-MM-dd") + $"T23:59:59";
                 DateTime finalstarttime = Convert.ToDateTime(yeststarttime);
                 DateTime finalendtime = Convert.ToDateTime(yestendtime);
                 var starttime = DateTime.SpecifyKind(finalstarttime, DateTimeKind.Utc);// DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
@@ -73,11 +76,11 @@ namespace EF_TextCapture_Service
                 //var deserializer = new RestSharp.Serialization.Json.JsonDeserializer();
                 string action = "Going to get Hybrid Chat URL from DB";
                 Library.logerror(action);
-                string query = @"select hc_url from endpoints";
-                DataTable querydt = Library.GetRequest(query);
-                if (querydt.Rows.Count > 0)
-                {
-                    hcurl = querydt.Rows[0]["hc_url"].ToString().Trim();
+                //string query = @"select hc_url from endpoints";
+                //DataTable querydt = Library.GetRequest(query);
+                //if (querydt.Rows.Count > 0)
+                //{
+                    hcurl = $"https://chat.lifeline.org.au/database-connector";// querydt.Rows[0]["hc_url"].ToString().Trim();
                     action = "Fetching All Conversations from Hybrid Chat MongoDB";
                     //GET CONVERSTATIONS
                     Library.logerror(action);
@@ -142,14 +145,16 @@ namespace EF_TextCapture_Service
                                     attributeinst.sourceType = "Chat";
                                     attributeinst.sourceSubType = "Chat";
 
+                                    TimeZoneInfo aestTimeZine = TimeZoneInfo.FindSystemTimeZoneById("E. Australia Standard Time");
+                                    
                                     //CALL NEW ROOT OBJECT FOR LLA INSTANCE
                                     LLA_Model.verint_interface ObjClass = new LLA_Model.verint_interface();
                                     ObjClass.id = convid;
                                     ObjClass.language = "en-us";
                                     ObjClass.sourceType = "Chat";
                                     ObjClass.project = "LifeLine Customer Contact Solution";
-                                    ObjClass.startTime = looper.startTime.AddHours(10); //looper.startTime;//.AddHours(-10);
-                                    ObjClass.endTime = looper.updatedAt.AddHours(10);// looper.updatedAt;//.AddHours(-10);
+                                    ObjClass.startTime = TimeZoneInfo.ConvertTimeFromUtc(looper.startTime, aestTimeZine);   //.AddHours(10); //looper.startTime;//.AddHours(-10);
+                                    ObjClass.endTime = TimeZoneInfo.ConvertTimeFromUtc(looper.updatedAt, aestTimeZine);// looper.updatedAt.AddHours(10);// looper.updatedAt;//.AddHours(-10);
                                     ObjClass.subject = "";
                                     ObjClass.direction = 2;
                                     ObjClass.threadId = looper.taskId;
@@ -189,7 +194,7 @@ namespace EF_TextCapture_Service
                                             actorsids.timezone = "+10:00";
                                             //actorsids.enterTime = messageitem.timestamp;//.AddHours(-10);
                                             //actorsids.leaveTime = ObjClass.endTime;
-                                            actorsids.enterTime = messageitem.timestamp.AddHours(10);
+                                            actorsids.enterTime = TimeZoneInfo.ConvertTimeFromUtc(messageitem.timestamp, aestTimeZine);// messageitem.timestamp.AddHours(10);
                                             actorsids.leaveTime = ObjClass.endTime;
                                             //CONFIRM IF THE ACTOR DOES NOT ALREADY EXIST IN THE LIST OF ACTORS AND PUSH NEW ITEM INTO LIST
                                             ActorList.Add(actorsids);
@@ -219,7 +224,7 @@ namespace EF_TextCapture_Service
                                             utteranceinst.language = "en-us";
                                             utteranceinst.actor = message.from.id.ToLower();
                                             utteranceinst.to = To.Count == 0 ? forempty : To;
-                                            utteranceinst.startTime = message.timestamp.AddHours(10);// message.timestamp;
+                                            utteranceinst.startTime = TimeZoneInfo.ConvertTimeFromUtc(message.timestamp, aestTimeZine); ;// message.timestamp.AddHours(10);// message.timestamp;
                                             utteranceinst.type = message.messageType;
                                             utteranceinst.value = message.text == null ? "" : System.Web.HttpUtility.UrlDecode(message.text);
                                             utteranceinst.raw_value = message.text == null ? "" : System.Web.HttpUtility.UrlDecode(message.text);
@@ -380,12 +385,12 @@ namespace EF_TextCapture_Service
                         string errormessage = "Conversations could not be Fetched from EF Hybrid Chat";
                         logerror(errormessage);
                     }
-                }
-                else
-                {
-                     action = "System could not get the Hybrid Chat Reporting URL";
-                    Library.logerror(action);
-                }
+               // }
+                //else
+                //{
+                //     action = "System could not get the Hybrid Chat Reporting URL";
+                //    Library.logerror(action);
+                //}
             }
             catch (Exception e)
             {
