@@ -38,15 +38,15 @@ namespace EF_TextCapture_Service
             int port = 0;
             //GET PASSWORD
             string get = $"select * from sftp";
-            //DataTable dt = Library.GetRequest(get);
-            //if (dt.Rows.Count > 0)
-            //{
-            //    string temppw = String.IsNullOrEmpty(dt.Rows[0]["password"].ToString()) ? "" : dt.Rows[0]["password"].ToString();
-            //    password = temppw;// Library.decryptpass(temppw);
-            //    username = String.IsNullOrEmpty(dt.Rows[0]["username"].ToString()) ? "" : dt.Rows[0]["username"].ToString();
-            //    host = String.IsNullOrEmpty(dt.Rows[0]["host"].ToString()) ? "" : dt.Rows[0]["host"].ToString();
-            //    port = Convert.ToInt32(String.IsNullOrEmpty(dt.Rows[0]["port"].ToString()) ? "0" : dt.Rows[0]["port"].ToString());
-            //}
+            DataTable dt = Library.GetRequest(get);
+            if (dt.Rows.Count > 0)
+            {
+                string temppw = String.IsNullOrEmpty(dt.Rows[0]["password"].ToString()) ? "" : dt.Rows[0]["password"].ToString();
+                password = temppw;// Library.decryptpass(temppw);
+                username = String.IsNullOrEmpty(dt.Rows[0]["username"].ToString()) ? "" : dt.Rows[0]["username"].ToString();
+                host = String.IsNullOrEmpty(dt.Rows[0]["host"].ToString()) ? "" : dt.Rows[0]["host"].ToString();
+                port = Convert.ToInt32(String.IsNullOrEmpty(dt.Rows[0]["port"].ToString()) ? "0" : dt.Rows[0]["port"].ToString());
+            }
 
 
             SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["VerintDB"].ConnectionString);
@@ -62,14 +62,8 @@ namespace EF_TextCapture_Service
                 TimeZoneInfo aestTimeZine = TimeZoneInfo.FindSystemTimeZoneById("E. Australia Standard Time");
                 TimeZoneInfo utcTimeZine = TimeZoneInfo.FindSystemTimeZoneById("UTC");
                 var currtime = DateTime.Now.ToUniversalTime();
-                //var startdatetimeraw = currtime.AddHours(-34);
-                var startdatetimeraw = currtime.AddDays(-2); //.AddHours(-34);
-                //var enddatetimeraw = currtime.AddHours(-11);
-                var starttimenmin = startdatetimeraw.ToString("HH");
-                //var endtimemin = enddatetimeraw.ToString("HH");
-                //string yeststarttime = startdatetimeraw.ToString("yyyy-MM-dd") + $"T{starttimenmin}:00:00";
+                var startdatetimeraw = currtime.AddDays(-1); //.AddHours(-34);
                 string yeststarttime = startdatetimeraw.ToString("yyyy-MM-dd") + $"T00:00:00";
-                //string yestendtime = enddatetimeraw.ToString("yyyy-MM-dd") + $"T{endtimemin}:59:59";
                 string yestendtime = startdatetimeraw.ToString("yyyy-MM-dd") + $"T23:59:59";
                 DateTime finalstarttime = Convert.ToDateTime(yeststarttime);
                 DateTime finalendtime = Convert.ToDateTime(yestendtime);
@@ -78,10 +72,10 @@ namespace EF_TextCapture_Service
                 //var deserializer = new RestSharp.Serialization.Json.JsonDeserializer();
                 string action = "Going to get Hybrid Chat URL from DB";
                 Library.logerror(action);
-                //string query = @"select hc_url from endpoints";
-                //DataTable querydt = Library.GetRequest(query);
-                //if (querydt.Rows.Count > 0)
-                //{
+                string query = @"select hc_url from endpoints";
+                DataTable querydt = Library.GetRequest(query);
+                if (querydt.Rows.Count > 0)
+                {
                     hcurl = $"https://chat.lifeline.org.au/database-connector";// querydt.Rows[0]["hc_url"].ToString().Trim();
                     action = "Fetching All Conversations from Hybrid Chat MongoDB";
                     //GET CONVERSTATIONS
@@ -104,8 +98,7 @@ namespace EF_TextCapture_Service
                          action = "Conversations Fetched successfully";
                             logerror(action);
                         Library.logerror(action);
-                        //var deserializer1 = new RestSharp.Serialization.Json.JsonDeserializer();
-                        //var cooc = deserializer1.Deserialize<List<HC_Model.Root2>>(hcconversationresponse);
+
                         action = "looping through the conversation IDs";
                         logerror(action);
                         Library.logerror(action);
@@ -119,8 +112,7 @@ namespace EF_TextCapture_Service
 
                             string convid = looper.id;
                             //GET MESSAGES
-                            if (convid == "04TpmaaGV30IsLxWlHMr6")
-                            {
+                           
                                 totalconvcount++;
                                 string getmessageurl_part = $"/getMessages?conversationId={convid}";
                                 string getmessageurl = hcurl + getmessageurl_part;
@@ -147,16 +139,15 @@ namespace EF_TextCapture_Service
                                     attributeinst.sourceType = "Chat";
                                     attributeinst.sourceSubType = "Chat";
 
-                                    
-                                    
+                                                          
                                     //CALL NEW ROOT OBJECT FOR LLA INSTANCE
                                     LLA_Model.verint_interface ObjClass = new LLA_Model.verint_interface();
                                     ObjClass.id = convid;
                                     ObjClass.language = "en-us";
                                     ObjClass.sourceType = "Chat";
                                     ObjClass.project = "LifeLine Customer Contact Solution";
-                                    ObjClass.startTime = TimeZoneInfo.ConvertTimeFromUtc(looper.startTime, aestTimeZine);   //.AddHours(10); //looper.startTime;//.AddHours(-10);
-                                    ObjClass.endTime = TimeZoneInfo.ConvertTimeFromUtc(looper.updatedAt, aestTimeZine);// looper.updatedAt.AddHours(10);// looper.updatedAt;//.AddHours(-10);
+                                    ObjClass.startTime = TimeZoneInfo.ConvertTimeFromUtc(looper.startTime, aestTimeZine);  
+                                    ObjClass.endTime = TimeZoneInfo.ConvertTimeFromUtc(looper.updatedAt, aestTimeZine);
                                     ObjClass.subject = "";
                                     ObjClass.direction = 2;
                                     ObjClass.threadId = looper.taskId;
@@ -269,7 +260,6 @@ namespace EF_TextCapture_Service
 
                                         //AGENT EXISTS, NOW CALLING VERINT API TO PUSH THE CHAT TRANSCRIPTS
                                         string LLA_url = "https://sydpvertxr01.iptel.lifeline.org.au/api/recording/textcapture/v1/ingestion";
-                                        string test = "ed067050bbc1a63b285e970cf551dce5";
                                         var keyId = "hmm11D1C";
                                         var keyStr = "nCYUvKyXqoc6dEboQCdmO8B94jVY8ySZrVBJWZLRS1s";
 
@@ -337,7 +327,7 @@ namespace EF_TextCapture_Service
                                 {
                                     Library.logerror("Error fetcghing messages for Conversation_Id: " + convid + " " + GetMessageStatcode + "");
                                 }
-                            }
+                            
                         }
 
                         //======================================
@@ -391,13 +381,13 @@ namespace EF_TextCapture_Service
                         string errormessage = "Conversations could not be Fetched from EF Hybrid Chat";
                         logerror(errormessage);
                     }
-               // }
-                //else
-                //{
-                //     action = "System could not get the Hybrid Chat Reporting URL";
-                //    Library.logerror(action);
-                //}
             }
+                else
+            {
+                action = "System could not get the Hybrid Chat Reporting URL";
+                Library.logerror(action);
+            }
+        }
             catch (Exception e)
             {
                 string errormessage = e.Message.ToString();
