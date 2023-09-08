@@ -110,9 +110,12 @@ namespace EF_TextCapture_Service
                         int totalchatssenttoftp = 0;
                         Library.logerror(poster.Count+ " Conversatiosn found");
                         foreach (var looper in poster)
+                        {
+
+                            string convid = looper.id;
+                            //GET MESSAGES
+                            if (convid == "04TpmaaGV30IsLxWlHMr6")
                             {
-                                string convid = looper.id;
-                                //GET MESSAGES
                                 totalconvcount++;
                                 string getmessageurl_part = $"/getMessages?conversationId={convid}";
                                 string getmessageurl = hcurl + getmessageurl_part;
@@ -152,77 +155,77 @@ namespace EF_TextCapture_Service
                                     ObjClass.threadId = looper.taskId;
                                     ObjClass.datasource = "Text";
                                     ObjClass.parentId = convid;
-                                foreach (var messageitem in messageObj)
-                                {
-                                    LLA_Model.Actor actorsids = new LLA_Model.Actor();
-                                    actorsids.id = messageitem.from.id.ToLower();
-                                    bool containsItem = ActorList.Any(item => item.id == actorsids.id);
-                                    if (containsItem == false)
+                                    foreach (var messageitem in messageObj)
                                     {
+                                        LLA_Model.Actor actorsids = new LLA_Model.Actor();
                                         actorsids.id = messageitem.from.id.ToLower();
-                                        actorsids.email = "";
-                                        actorsids.accountId = messageitem.from.id.ToLower();
-                                        string finalrole;
-                                        switch (messageitem.from.type.ToLower())
+                                        bool containsItem = ActorList.Any(item => item.id == actorsids.id);
+                                        if (containsItem == false)
                                         {
-                                            case "bot":
-                                                finalrole = "info";
-                                                break;
-                                            case "customer":
-                                                finalrole = "visitor";
-                                                break;
-                                            case "agent":
-                                                finalrole = "agent";
-                                                break;
-                                            case "supervisor":
-                                                finalrole = "agent";
-                                                break;
-                                            default:
-                                                finalrole = "";
-                                                break;
-                                        }
-                                        actorsids.role = finalrole;
-                                        actorsids.displayName = HttpUtility.UrlDecode(messageitem.from.name);
-                                        actorsids.timezone = "+10:00";
-                                        //actorsids.enterTime = messageitem.timestamp;//.AddHours(-10);
-                                        //actorsids.leaveTime = ObjClass.endTime;
-                                        actorsids.enterTime = messageitem.timestamp.AddHours(10);
-                                        actorsids.leaveTime = ObjClass.endTime;
-                                        //CONFIRM IF THE ACTOR DOES NOT ALREADY EXIST IN THE LIST OF ACTORS AND PUSH NEW ITEM INTO LIST
-                                        ActorList.Add(actorsids);
-                                    }
-                                }
-                                foreach (var message in messageObj)
-                                    {
-                                    
-                                    //SETTING THE DYNAMIC PART OF UTTERANCE CLASS INSTANCE
-                                    //CREATE NEW UTTERANCE SUBCLASS
-                                    if (message.messageType != "ActivityMessage")
-                                    {
-                                        LLA_Model.Utterance utteranceinst = new LLA_Model.Utterance();
-                                        if (message.to.Count == 0)
-                                        {
-                                            forempty = ActorList.Where(f => f.id!= message.from.id).Select(n => n.id).ToList();
-                                        }
-                                        else
-                                        {
-                                            receiver = message.to[0].id.ToLower().ToString();
-                                            bool containsItem2 = To.Any(item => item.ToString() == receiver.ToString());
-                                            if (containsItem2 == false)
+                                            actorsids.id = messageitem.from.id.ToLower();
+                                            actorsids.email = "";
+                                            actorsids.accountId = messageitem.from.id.ToLower();
+                                            string finalrole;
+                                            switch (messageitem.from.type.ToLower())
                                             {
-                                                To.Add(receiver);
+                                                case "bot":
+                                                    finalrole = "info";
+                                                    break;
+                                                case "customer":
+                                                    finalrole = "visitor";
+                                                    break;
+                                                case "agent":
+                                                    finalrole = "agent";
+                                                    break;
+                                                case "supervisor":
+                                                    finalrole = "agent";
+                                                    break;
+                                                default:
+                                                    finalrole = "";
+                                                    break;
                                             }
+                                            actorsids.role = finalrole;
+                                            actorsids.displayName = HttpUtility.UrlDecode(messageitem.from.name);
+                                            actorsids.timezone = "+10:00";
+                                            //actorsids.enterTime = messageitem.timestamp;//.AddHours(-10);
+                                            //actorsids.leaveTime = ObjClass.endTime;
+                                            actorsids.enterTime = messageitem.timestamp.AddHours(10);
+                                            actorsids.leaveTime = ObjClass.endTime;
+                                            //CONFIRM IF THE ACTOR DOES NOT ALREADY EXIST IN THE LIST OF ACTORS AND PUSH NEW ITEM INTO LIST
+                                            ActorList.Add(actorsids);
                                         }
-                                        utteranceinst.language = "en-us";
-                                        utteranceinst.actor = message.from.id.ToLower();
-                                        utteranceinst.to = To.Count == 0 ? forempty : To;
-                                        utteranceinst.startTime = message.timestamp.AddHours(10);// message.timestamp;
-                                        utteranceinst.type = message.messageType;
-                                        utteranceinst.value = message.text == null ? "" : System.Web.HttpUtility.UrlDecode(message.text);
-                                        utteranceinst.raw_value = message.text == null ? "" : System.Web.HttpUtility.UrlDecode(message.text);
-                                        // PUSH NEW ITEM INTO LIST
-                                        UtteranceList.Add(utteranceinst);
                                     }
+                                    foreach (var message in messageObj)
+                                    {
+
+                                        //SETTING THE DYNAMIC PART OF UTTERANCE CLASS INSTANCE
+                                        //CREATE NEW UTTERANCE SUBCLASS
+                                        if (message.messageType != "ActivityMessage")
+                                        {
+                                            LLA_Model.Utterance utteranceinst = new LLA_Model.Utterance();
+                                            if (message.to.Count == 0)
+                                            {
+                                                forempty = ActorList.Where(f => f.id != message.from.id).Select(n => n.id).ToList();
+                                            }
+                                            else
+                                            {
+                                                receiver = message.to[0].id.ToLower().ToString();
+                                                bool containsItem2 = To.Any(item => item.ToString() == receiver.ToString());
+                                                if (containsItem2 == false)
+                                                {
+                                                    To.Add(receiver);
+                                                }
+                                            }
+                                            utteranceinst.language = "en-us";
+                                            utteranceinst.actor = message.from.id.ToLower();
+                                            utteranceinst.to = To.Count == 0 ? forempty : To;
+                                            utteranceinst.startTime = message.timestamp.AddHours(10);// message.timestamp;
+                                            utteranceinst.type = message.messageType;
+                                            utteranceinst.value = message.text == null ? "" : System.Web.HttpUtility.UrlDecode(message.text);
+                                            utteranceinst.raw_value = message.text == null ? "" : System.Web.HttpUtility.UrlDecode(message.text);
+                                            // PUSH NEW ITEM INTO LIST
+                                            UtteranceList.Add(utteranceinst);
+                                        }
                                         //SETTING THE DYNAMIC PART OF ROOT CLASS INSTANCE
                                         ObjClass.type = "EF-HybridChat" + message.messageType;
                                         ObjClass.actors = ActorList;
@@ -230,18 +233,18 @@ namespace EF_TextCapture_Service
                                         ObjClass.utterances = UtteranceList;
                                     }
 
-                                //=====================================
-                                //SAVE SFTP FILE
-                                //=====================================
-                                //CREATE A FILE OUT OF THE OBJECT BEFORE SENDING TO SFTP
+                                    //=====================================
+                                    //SAVE SFTP FILE
+                                    //=====================================
+                                    //CREATE A FILE OUT OF THE OBJECT BEFORE SENDING TO SFTP
                                     Library.logerror("Creating JSon file - SFTP Transfer for Conversation_Id: " + convid + "");
                                     using (StreamWriter file = File.CreateText(@"C:\inetpub\wwwroot\temp\" + convid + ".json"))
-                                {
-                                    JsonSerializer writefile = new JsonSerializer();
-                                    writefile.Serialize(file,ObjClass);
-                                    Library.logerror("json created successfully, now sending file to sftp client for conversation_id: " + convid + "");
-                                }
-                                    
+                                    {
+                                        JsonSerializer writefile = new JsonSerializer();
+                                        writefile.Serialize(file, ObjClass);
+                                        Library.logerror("json created successfully, now sending file to sftp client for conversation_id: " + convid + "");
+                                    }
+
                                     //===============================================================================================================
                                     //VERINT INGESTION PART
                                     //===============================================================================================================
@@ -252,9 +255,9 @@ namespace EF_TextCapture_Service
                                     if (agenstexist == true)
                                     {
 
-                                   
-                                    //AGENT EXISTS, NOW CALLING VERINT API TO PUSH THE CHAT TRANSCRIPTS
-                                    string LLA_url = "https://sydpvertxr01.iptel.lifeline.org.au/api/recording/textcapture/v1/ingestion";
+
+                                        //AGENT EXISTS, NOW CALLING VERINT API TO PUSH THE CHAT TRANSCRIPTS
+                                        string LLA_url = "https://sydpvertxr01.iptel.lifeline.org.au/api/recording/textcapture/v1/ingestion";
                                         string test = "ed067050bbc1a63b285e970cf551dce5";
                                         var keyId = "hmm11D1C";
                                         var keyStr = "nCYUvKyXqoc6dEboQCdmO8B94jVY8ySZrVBJWZLRS1s";
@@ -324,6 +327,7 @@ namespace EF_TextCapture_Service
                                     Library.logerror("Error fetcghing messages for Conversation_Id: " + convid + " " + GetMessageStatcode + "");
                                 }
                             }
+                        }
 
                         //======================================
                         //SENDING BULK JSON FILES TO SFTP PART
