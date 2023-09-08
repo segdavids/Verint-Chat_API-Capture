@@ -59,6 +59,8 @@ namespace EF_TextCapture_Service
 
             try
             {
+                TimeZoneInfo aestTimeZine = TimeZoneInfo.FindSystemTimeZoneById("E. Australia Standard Time");
+                TimeZoneInfo utcTimeZine = TimeZoneInfo.FindSystemTimeZoneById("UTC DateTime");
                 var currtime = DateTime.Now.ToUniversalTime();
                 //var startdatetimeraw = currtime.AddHours(-34);
                 var startdatetimeraw = currtime.AddDays(-2); //.AddHours(-34);
@@ -145,7 +147,7 @@ namespace EF_TextCapture_Service
                                     attributeinst.sourceType = "Chat";
                                     attributeinst.sourceSubType = "Chat";
 
-                                    TimeZoneInfo aestTimeZine = TimeZoneInfo.FindSystemTimeZoneById("E. Australia Standard Time");
+                                    
                                     
                                     //CALL NEW ROOT OBJECT FOR LLA INSTANCE
                                     LLA_Model.verint_interface ObjClass = new LLA_Model.verint_interface();
@@ -259,7 +261,11 @@ namespace EF_TextCapture_Service
                                     //NOW CALLING NTT API TO PUSH THE CHAT TRANSCRIPTS
                                     if (agenstexist == true)
                                     {
-
+                                        //CONVERT THE TIMEZONE BACK TO UTC FOR SENDING IT TO VERINT
+                                        ObjClass.startTime = TimeZoneInfo.ConvertTimeToUtc(looper.startTime, utcTimeZine);  
+                                        ObjClass.endTime = TimeZoneInfo.ConvertTimeFromUtc(looper.updatedAt, utcTimeZine);// 
+                                        ActorList.ForEach(actor=>actor.enterTime = TimeZoneInfo.ConvertTimeFromUtc(actor.enterTime, utcTimeZine));
+                                        UtteranceList.ForEach(utterance=>utterance.startTime = TimeZoneInfo.ConvertTimeFromUtc(utterance.startTime, utcTimeZine));
 
                                         //AGENT EXISTS, NOW CALLING VERINT API TO PUSH THE CHAT TRANSCRIPTS
                                         string LLA_url = "https://sydpvertxr01.iptel.lifeline.org.au/api/recording/textcapture/v1/ingestion";
