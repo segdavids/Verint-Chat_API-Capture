@@ -60,7 +60,7 @@ namespace EF_TextCapture_Service
             try
             {
                 TimeZoneInfo aestTimeZine = TimeZoneInfo.FindSystemTimeZoneById("E. Australia Standard Time");
-                TimeZoneInfo utcTimeZine = TimeZoneInfo.FindSystemTimeZoneById("UTC DateTime");
+                TimeZoneInfo utcTimeZine = TimeZoneInfo.FindSystemTimeZoneById("UTC");
                 var currtime = DateTime.Now.ToUniversalTime();
                 //var startdatetimeraw = currtime.AddHours(-34);
                 var startdatetimeraw = currtime.AddDays(-2); //.AddHours(-34);
