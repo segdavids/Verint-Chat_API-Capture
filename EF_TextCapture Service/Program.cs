@@ -38,15 +38,15 @@ namespace EF_TextCapture_Service
             int port = 0;
             //GET PASSWORD
             string get = $"select * from sftp";
-            DataTable dt = Library.GetRequest(get);
-            if (dt.Rows.Count > 0)
-            {
-                string temppw = String.IsNullOrEmpty(dt.Rows[0]["password"].ToString()) ? "" : dt.Rows[0]["password"].ToString();
-                password = temppw;// Library.decryptpass(temppw);
-                username = String.IsNullOrEmpty(dt.Rows[0]["username"].ToString()) ? "" : dt.Rows[0]["username"].ToString();
-                host = String.IsNullOrEmpty(dt.Rows[0]["host"].ToString()) ? "" : dt.Rows[0]["host"].ToString();
-                port = Convert.ToInt32(String.IsNullOrEmpty(dt.Rows[0]["port"].ToString()) ? "0" : dt.Rows[0]["port"].ToString());
-            }
+            //DataTable dt = Library.GetRequest(get);
+            //if (dt.Rows.Count > 0)
+            //{
+            //    string temppw = String.IsNullOrEmpty(dt.Rows[0]["password"].ToString()) ? "" : dt.Rows[0]["password"].ToString();
+            //    password = temppw;// Library.decryptpass(temppw);
+            //    username = String.IsNullOrEmpty(dt.Rows[0]["username"].ToString()) ? "" : dt.Rows[0]["username"].ToString();
+            //    host = String.IsNullOrEmpty(dt.Rows[0]["host"].ToString()) ? "" : dt.Rows[0]["host"].ToString();
+            //    port = Convert.ToInt32(String.IsNullOrEmpty(dt.Rows[0]["port"].ToString()) ? "0" : dt.Rows[0]["port"].ToString());
+            //}
 
 
             SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["VerintDB"].ConnectionString);
@@ -73,9 +73,9 @@ namespace EF_TextCapture_Service
                 string action = "Going to get Hybrid Chat URL from DB";
                 Library.logerror(action);
                 string query = @"select hc_url from endpoints";
-                DataTable querydt = Library.GetRequest(query);
-                if (querydt.Rows.Count > 0)
-                {
+                //DataTable querydt = Library.GetRequest(query);
+                //if (querydt.Rows.Count > 0)
+                //{
                     hcurl = $"https://chat.lifeline.org.au/database-connector";// querydt.Rows[0]["hc_url"].ToString().Trim();
                     action = "Fetching All Conversations from Hybrid Chat MongoDB";
                     //GET CONVERSTATIONS
@@ -252,67 +252,67 @@ namespace EF_TextCapture_Service
                                     //NOW CALLING NTT API TO PUSH THE CHAT TRANSCRIPTS
                                     if (agenstexist == true)
                                     {
-                                        //CONVERT THE TIMEZONE BACK TO UTC FOR SENDING IT TO VERINT
-                                        ObjClass.startTime = TimeZoneInfo.ConvertTimeToUtc(looper.startTime, utcTimeZine);  
-                                        ObjClass.endTime = TimeZoneInfo.ConvertTimeFromUtc(looper.updatedAt, utcTimeZine);// 
-                                        ActorList.ForEach(actor=>actor.enterTime = TimeZoneInfo.ConvertTimeFromUtc(actor.enterTime, utcTimeZine));
-                                        UtteranceList.ForEach(utterance=>utterance.startTime = TimeZoneInfo.ConvertTimeFromUtc(utterance.startTime, utcTimeZine));
+                                    //    //CONVERT THE TIMEZONE BACK TO UTC FOR SENDING IT TO VERINT
+                                    //    ObjClass.startTime = TimeZoneInfo.ConvertTimeToUtc(looper.startTime, utcTimeZine);  
+                                    //    ObjClass.endTime = TimeZoneInfo.ConvertTimeFromUtc(looper.updatedAt, utcTimeZine);// 
+                                    //    ActorList.ForEach(actor=>actor.enterTime = TimeZoneInfo.ConvertTimeFromUtc(actor.enterTime, utcTimeZine));
+                                    //    UtteranceList.ForEach(utterance=>utterance.startTime = TimeZoneInfo.ConvertTimeFromUtc(utterance.startTime, utcTimeZine));
 
-                                        //AGENT EXISTS, NOW CALLING VERINT API TO PUSH THE CHAT TRANSCRIPTS
-                                        string LLA_url = "https://sydpvertxr01.iptel.lifeline.org.au/api/recording/textcapture/v1/ingestion";
-                                        var keyId = "hmm11D1C";
-                                        var keyStr = "nCYUvKyXqoc6dEboQCdmO8B94jVY8ySZrVBJWZLRS1s";
+                                    //    //AGENT EXISTS, NOW CALLING VERINT API TO PUSH THE CHAT TRANSCRIPTS
+                                    //    string LLA_url = "https://sydpvertxr01.iptel.lifeline.org.au/api/recording/textcapture/v1/ingestion";
+                                    //    var keyId = "hmm11D1C";
+                                    //    var keyStr = "nCYUvKyXqoc6dEboQCdmO8B94jVY8ySZrVBJWZLRS1s";
 
-                                        var client = new RestSharp.RestClient(LLA_url);
-                                        var request = new RestSharp.RestRequest("" + LLA_url + "", RestSharp.Method.POST);
-                                        client.UseVwtAuthentication(keyId, keyStr);
-                                        request.RequestFormat = RestSharp.DataFormat.Json;
-                                        request.AddJsonBody(ObjClass);
-                                        var response = client.Execute(request);
-                                        int V_StatCode = Convert.ToInt32(response.StatusCode);
-                                        if (V_StatCode == 201)
-                                        {
-                                            string checkquery = "IF EXISTS (select * from Report_Stat where ConversationId='" + ObjClass.id + "') BEGIN update Report_Stat set status=" + 1 + ",Error_message='N/A',Date_Updated='" + DateTime.Now + "' where ConversationId='" + ObjClass.id + "' END ELSE BEGIN insert into Report_Stat (ConversationId,ChatStartTime,ChatEndTime,ThreadId,status,Error_message,Date_reported) values('" + ObjClass.id + "','" + ObjClass.startTime + "','" + ObjClass.endTime + "','" + ObjClass.threadId + "'," + 1 + ",'N/A','" + DateTime.Now + "') END";
-                                            string resp = Library.NonQeryRequest(checkquery);
-                                            switch (resp)
-                                            {
-                                                case "200":
-                                                    success_count = success_count + 1;
-                                                    string s = "Successfully pushed Chat Transcript for ChatID: " + convid; Library.logerror(s);
-                                                    break;
-                                                case "400":
-                                                    success_count = success_count + 1;
-                                                    string err = "Successfully pushed Chat Transcript to Verint but could not insert audit into DB for ChatID: " + convid;
-                                                    Library.logerror(err);
-                                                    break;
-                                                default:
-                                                    break;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            string errorinstring = response.Content.ToString() == "" ? response.ErrorException.Message.ToString() : response.Content.ToString();
-                                            errorinstring = errorinstring.Replace("'", "");
-                                            errorinstring = errorinstring.Replace("\"", "");
-                                            errorinstring = errorinstring.Replace("data:{documentId:a6rFMFkp8n0bBoBw-lFP7},meta:{request_server:sydpvertxr01.iptel.lifeline.org.au,_error:,request_authHeaderValue:Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6IkFsbktMR1dCIiwidHlwIjoiSldUIn0.eyJ2X2F1dGgiOiJTV1QiLCJ2X2tleSI6ImhtbTExRDFDIiwidW5pcXVlX25hbWUiOiJUZW5hbnQiLCJzdWIiOiJUZW5hbnQiLCJyb2xlIjoiVGVuYW50Iiwidl90aWQiOiIwIiwibmJmIjoxNjU1Mzg4MjU5LCJleHAiOjE2NTUzODg1NTksImlhdCI6MTY1NTM4ODI1OSwiaXNzIjoiVmVyaW50In0.tPAZj-j5UKhgPbyGwtolixrTdPfMZ7uo2ttizhJMTXU,request_port:29519,request_uri:/api/recording/textcapture/v1/ingestion},api_request_id", "");
-                                            string checkquery = "IF EXISTS (select * from Report_Stat where ConversationId='" + ObjClass.id + "') BEGIN update Report_Stat set status=" + 0 + ",Error_message='" + errorinstring + "',Date_Updated='" + DateTime.Now + "' where ConversationId='" + ObjClass.id + "' END ELSE BEGIN insert into Report_Stat (ConversationId,ChatStartTime,ChatEndTime,ThreadId,status,Error_message,Date_reported) values('" + ObjClass.id + "','" + ObjClass.startTime + "','" + ObjClass.endTime + "','" + ObjClass.threadId + "'," + 0 + ",'" + errorinstring + "','" + DateTime.Now + "') END";
-                                            string resp1 = Library.NonQeryRequest(checkquery);
-                                            switch (resp1)
-                                            {
-                                                case "200":
-                                                    fail_count = fail_count + 1;
-                                                    var ss = response.StatusCode.ToString() == "0" ? response.ErrorException.Message.ToString() : errorinstring;
-                                                    Library.logerror($"error:{ss}");
-                                                    break;
-                                                case "400":
-                                                    fail_count = fail_count + 1;
-                                                    string err = "Error pushing Transcript to Verint, could not insert audit into DB for ChatID: " + convid;
-                                                    Library.logerror(err + response.StatusCode.ToString() == "0" ? response.ErrorException.Message.ToString() : errorinstring);
-                                                    break;
-                                                default:
-                                                    break;
-                                            }
-                                        }
+                                    //    var client = new RestSharp.RestClient(LLA_url);
+                                    //    var request = new RestSharp.RestRequest("" + LLA_url + "", RestSharp.Method.POST);
+                                    //    client.UseVwtAuthentication(keyId, keyStr);
+                                    //    request.RequestFormat = RestSharp.DataFormat.Json;
+                                    //    request.AddJsonBody(ObjClass);
+                                    //    var response = client.Execute(request);
+                                    //    int V_StatCode = Convert.ToInt32(response.StatusCode);
+                                        //if (V_StatCode == 201)
+                                        //{
+                                        //    string checkquery = "IF EXISTS (select * from Report_Stat where ConversationId='" + ObjClass.id + "') BEGIN update Report_Stat set status=" + 1 + ",Error_message='N/A',Date_Updated='" + DateTime.Now + "' where ConversationId='" + ObjClass.id + "' END ELSE BEGIN insert into Report_Stat (ConversationId,ChatStartTime,ChatEndTime,ThreadId,status,Error_message,Date_reported) values('" + ObjClass.id + "','" + ObjClass.startTime + "','" + ObjClass.endTime + "','" + ObjClass.threadId + "'," + 1 + ",'N/A','" + DateTime.Now + "') END";
+                                        //    string resp = Library.NonQeryRequest(checkquery);
+                                        //    switch (resp)
+                                        //    {
+                                        //        case "200":
+                                        //            success_count = success_count + 1;
+                                        //            string s = "Successfully pushed Chat Transcript for ChatID: " + convid; Library.logerror(s);
+                                        //            break;
+                                        //        case "400":
+                                        //            success_count = success_count + 1;
+                                        //            string err = "Successfully pushed Chat Transcript to Verint but could not insert audit into DB for ChatID: " + convid;
+                                        //            Library.logerror(err);
+                                        //            break;
+                                        //        default:
+                                        //            break;
+                                        //    }
+                                        //}
+                                        //else
+                                        //{
+                                        //    string errorinstring = response.Content.ToString() == "" ? response.ErrorException.Message.ToString() : response.Content.ToString();
+                                        //    errorinstring = errorinstring.Replace("'", "");
+                                        //    errorinstring = errorinstring.Replace("\"", "");
+                                        //    errorinstring = errorinstring.Replace("data:{documentId:a6rFMFkp8n0bBoBw-lFP7},meta:{request_server:sydpvertxr01.iptel.lifeline.org.au,_error:,request_authHeaderValue:Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6IkFsbktMR1dCIiwidHlwIjoiSldUIn0.eyJ2X2F1dGgiOiJTV1QiLCJ2X2tleSI6ImhtbTExRDFDIiwidW5pcXVlX25hbWUiOiJUZW5hbnQiLCJzdWIiOiJUZW5hbnQiLCJyb2xlIjoiVGVuYW50Iiwidl90aWQiOiIwIiwibmJmIjoxNjU1Mzg4MjU5LCJleHAiOjE2NTUzODg1NTksImlhdCI6MTY1NTM4ODI1OSwiaXNzIjoiVmVyaW50In0.tPAZj-j5UKhgPbyGwtolixrTdPfMZ7uo2ttizhJMTXU,request_port:29519,request_uri:/api/recording/textcapture/v1/ingestion},api_request_id", "");
+                                        //    string checkquery = "IF EXISTS (select * from Report_Stat where ConversationId='" + ObjClass.id + "') BEGIN update Report_Stat set status=" + 0 + ",Error_message='" + errorinstring + "',Date_Updated='" + DateTime.Now + "' where ConversationId='" + ObjClass.id + "' END ELSE BEGIN insert into Report_Stat (ConversationId,ChatStartTime,ChatEndTime,ThreadId,status,Error_message,Date_reported) values('" + ObjClass.id + "','" + ObjClass.startTime + "','" + ObjClass.endTime + "','" + ObjClass.threadId + "'," + 0 + ",'" + errorinstring + "','" + DateTime.Now + "') END";
+                                        //    string resp1 = Library.NonQeryRequest(checkquery);
+                                        //    switch (resp1)
+                                        //    {
+                                        //        case "200":
+                                        //            fail_count = fail_count + 1;
+                                        //            var ss = response.StatusCode.ToString() == "0" ? response.ErrorException.Message.ToString() : errorinstring;
+                                        //            Library.logerror($"error:{ss}");
+                                        //            break;
+                                        //        case "400":
+                                        //            fail_count = fail_count + 1;
+                                        //            string err = "Error pushing Transcript to Verint, could not insert audit into DB for ChatID: " + convid;
+                                        //            Library.logerror(err + response.StatusCode.ToString() == "0" ? response.ErrorException.Message.ToString() : errorinstring);
+                                        //            break;
+                                        //        default:
+                                        //            break;
+                                        //    }
+                                        //}
                                     }
                                     else
                                     {
@@ -338,7 +338,7 @@ namespace EF_TextCapture_Service
                         System.IO.DirectoryInfo di = new DirectoryInfo(@"C:\inetpub\wwwroot\Temp\");
                         var privateKey = new PrivateKeyFile(@"C:\EF\sFTP\expertflow_key.ppk");// USING PUBLIC KEY
                         
-                        using (var sftpclient = new SftpClient(host, port, username, new[] { privateKey }))
+                        using (var sftpclient = new SftpClient(host = "llastdatahubtaprod.blob.core.windows.net", port=22, username= "llastdatahubtaprod.expertflow", new[] { privateKey }))
                         {
                             sftpclient.Connect();
                             if (sftpclient.IsConnected)
@@ -381,12 +381,12 @@ namespace EF_TextCapture_Service
                         string errormessage = "Conversations could not be Fetched from EF Hybrid Chat";
                         logerror(errormessage);
                     }
-            }
-                else
-            {
-                action = "System could not get the Hybrid Chat Reporting URL";
-                Library.logerror(action);
-            }
+           // }
+            //    else
+            //{
+            //    action = "System could not get the Hybrid Chat Reporting URL";
+            //    Library.logerror(action);
+            //}
         }
             catch (Exception e)
             {
